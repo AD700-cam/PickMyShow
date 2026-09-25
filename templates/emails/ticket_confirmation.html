@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Movie Ticket Confirmation - PickMyShow</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f4f6f9;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #212529;
+      -webkit-font-smoothing: antialiased;
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e9ecef;
+    }
+    .email-header {
+      background: #1a1a24;
+      padding: 24px 30px;
+      text-align: center;
+    }
+    .brand-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+    .brand-highlight {
+      color: #e50914;
+    }
+    .email-body {
+      padding: 30px;
+    }
+    .status-badge {
+      display: inline-block;
+      background-color: #28a745;
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+    .greeting {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a24;
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    .intro-text {
+      color: #6c757d;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .ticket-card {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-left: 5px solid #e50914;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .movie-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a24;
+      margin: 0 0 6px 0;
+    }
+    .movie-meta {
+      color: #e50914;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13px;
+      border-bottom: 1px dashed #dee2e6;
+      padding-bottom: 6px;
+    }
+    .detail-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+    .detail-label {
+      color: #6c757d;
+      font-weight: 600;
+    }
+    .detail-value {
+      color: #1a1a24;
+      font-weight: 700;
+    }
+    .highlight-value {
+      color: #28a745;
+      font-size: 16px;
+    }
+    .attachment-notice {
+      background-color: #fff3cd;
+      border: 1px solid #ffeeba;
+      color: #856404;
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .email-footer {
+      background: #f8f9fa;
+      padding: 20px 30px;
+      text-align: center;
+      color: #9aa0a6;
+      font-size: 12px;
+      border-top: 1px solid #e9ecef;
+    }
+    .footer-links a {
+      color: #e50914;
+      text-decoration: none;
+      margin: 0 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <!-- Header -->
+    <div class="email-header">
+      <h1 class="brand-title">Pick<span class="brand-highlight">My</span>Show</h1>
+    </div>
+
+    <!-- Body -->
+    <div class="email-body">
+      <div style="text-align: center;">
+        <span class="status-badge">&#10003; Booking Confirmed</span>
+      </div>
+
+      <h2 class="greeting">Hi {{ user_name }},</h2>
+      <p class="intro-text">
+        Thank you for booking with PickMyShow! Your movie tickets have been confirmed. Please find your detailed booking breakdown below and your official PDF e-ticket with entry QR code attached to this email.
+      </p>
+
+      <!-- Ticket Card -->
+      <div class="ticket-card">
+        <h3 class="movie-name">{{ movie_name }}</h3>
+        <div class="movie-meta">{{ genre }} &bull; {{ language }} &bull; {{ duration }} Mins</div>
+
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <tr style="border-bottom: 1px dashed #dee2e6;">
+            <td style="padding: 8px 0; color: #6c757d; font-weight: 600;">Booking ID</td>
+            <td style="padding: 8px 0; text-align: right; color: #1a1a24; font-weight: 700;">{{ booking_id }}</td>
+          </tr>
+          <tr style="border-bottom: 1px dashed #dee2e6;">
+            <td style="padding: 8px 0; color: #6c757d; font-weight: 600;">Theater</td>
+            <td style="padding: 8px 0; text-align: right; color: #1a1a24; font-weight: 700;">{{ theater_name }} ({{ city }})</td>
+          </tr>
+          <tr style="border-bottom: 1px dashed #dee2e6;">
+            <td style="padding: 8px 0; color: #6c757d; font-weight: 600;">Auditorium</td>
+            <td style="padding: 8px 0; text-align: right; color: #2b4c7e; font-weight: 700;">{{ screen_name }}</td>
+          </tr>
+          <tr style="border-bottom: 1px dashed #dee2e6;">
+            <td style="padding: 8px 0; color: #6c757d; font-weight: 600;">Show Timing</td>
+            <td style="padding: 8px 0; text-align: right; color: #e50914; font-weight: 700;">{{ show_time }}</td>
+          </tr>
+          <tr style="border-bottom: 1px dashed #dee2e6;">
+            <td style="padding: 8px 0; color: #6c757d; font-weight: 600;">Booked Seats</td>
+            <td style="padding: 8px 0; text-align: right; color: #1a1a24; font-weight: 700;">{{ seat_numbers }}</td>
+          </tr>
+          <tr style="border-bottom: 1px dashed #dee2e6;">
+            <td style="padding: 8px 0; color: #6c757d; font-weight: 600;">Payment Reference</td>
+            <td style="padding: 8px 0; text-align: right; color: #6c757d; font-weight: 600;">{{ payment_reference }}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; color: #1a1a24; font-weight: 700; font-size: 15px;">Total Paid</td>
+            <td style="padding: 10px 0; text-align: right; color: #28a745; font-weight: 800; font-size: 16px;">Rs. {{ total_amount }}</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Attachment Notice -->
+      <div class="attachment-notice">
+        <strong>&#128206; PDF E-Ticket Attached:</strong> Your official cinema ticket with scannable QR code is attached to this email. You can present the attached PDF on your mobile phone at the cinema entry gate.
+      </div>
+
+      <p style="font-size: 13px; color: #6c757d; line-height: 1.5; margin: 0;">
+        You can also download or view your ticket anytime by visiting your <a href="{{ profile_url }}" style="color: #e50914; font-weight: 600; text-decoration: none;">Booking History</a> on PickMyShow.
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div class="email-footer">
+      <p style="margin: 0 0 8px 0;">&copy; 2026 PickMyShow. All Rights Reserved.</p>
+      <div class="footer-links">
+        <a href="#">Support</a> &bull;
+        <a href="#">Terms & Conditions</a> &bull;
+        <a href="#">Privacy Policy</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

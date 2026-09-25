@@ -1,0 +1,83 @@
+{% extends "users/basic.html" %}
+{% block title %}PickMyShow - Log In{% endblock %}
+
+{% block content %}
+<style>
+  .auth-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+  .auth-header {
+    background: #1a1a24;
+    color: #fff;
+    padding: 24px 30px;
+    text-align: center;
+  }
+  .auth-body {
+    padding: 30px;
+  }
+  .auth-input-group .input-group-text {
+    background: #f8f9fa;
+    border-right: none;
+    color: #6c757d;
+  }
+  .auth-input-group .form-control {
+    border-left: none;
+  }
+  .auth-input-group .form-control:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+  }
+</style>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="auth-card">
+        <div class="auth-header">
+          <i class="fas fa-ticket-alt text-danger fa-2x mb-2 d-block"></i>
+          <h4 class="font-weight-bold mb-1 text-white">Welcome Back!</h4>
+          <p class="text-muted small mb-0">Log in to book tickets and manage your watchlist</p>
+        </div>
+        <div class="auth-body">
+          <form method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            <div class="form-group mb-3">
+              <label for="{{ form.username.id_for_label }}" class="font-weight-bold small text-dark">Username</label>
+              <div class="input-group auth-input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fas fa-user"></i></span>
+                </div>
+                {{ form.username }}
+              </div>
+            </div>
+
+            <div class="form-group mb-3">
+              <label for="{{ form.password.id_for_label }}" class="font-weight-bold small text-dark">Password</label>
+              <div class="input-group auth-input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                </div>
+                {{ form.password }}
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-danger btn-block font-weight-bold py-2 shadow-sm mt-4">
+              <i class="fas fa-sign-in-alt mr-1"></i> Log In
+            </button>
+          </form>
+
+          <div class="text-center mt-4 pt-3 border-top">
+            <p class="text-muted small mb-1">Don't have an account?</p>
+            <a href="{% url 'register' %}" class="font-weight-bold text-danger">Create New Account</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,857 @@
+{% extends "users/basic.html" %}
+{% block title %}PickMyShow - Movie Tickets, Showtimes & Recommendations{% endblock %}
+
+{% block content %}
+<style>
+/* ═══════════════════════════════════════════════════════════
+   1. FULL-WIDTH EDGE-TO-EDGE HERO BANNER SECTION (3-Sec Slide)
+   ═══════════════════════════════════════════════════════════ */
+.pms-hero-section {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: #0f1016;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.pms-hero-section .carousel {
+  width: 100%;
+}
+
+.pms-hero-section .carousel-item {
+  height: 380px;
+  background: #0f1016;
+  transition: transform 0.6s ease-in-out;
+}
+
+.pms-hero-section .carousel-item a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.pms-hero-section .carousel-item img {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Sleek Carousel Arrows */
+.pms-hero-section .carousel-control-prev,
+.pms-hero-section .carousel-control-next {
+  width: 46px;
+  height: 46px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(15, 16, 22, 0.72);
+  border-radius: 50%;
+  margin: 0 20px;
+  opacity: 0.85;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  z-index: 15;
+}
+
+.pms-hero-section .carousel-control-prev:hover,
+.pms-hero-section .carousel-control-next:hover {
+  background: #e50914;
+  opacity: 1;
+  transform: translateY(-50%) scale(1.08);
+  border-color: #e50914;
+}
+
+.pms-hero-section .carousel-control-prev-icon,
+.pms-hero-section .carousel-control-next-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Carousel Dot Indicators */
+.pms-hero-section .carousel-indicators {
+  bottom: 14px;
+  margin-bottom: 0;
+  z-index: 15;
+}
+
+.pms-hero-section .carousel-indicators li {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.45);
+  margin: 0 5px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.pms-hero-section .carousel-indicators li.active {
+  background: #e50914;
+  width: 26px;
+  border-radius: 5px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   2. SEPARATED SEARCH BAR (Down Below Banners)
+   ═══════════════════════════════════════════════════════════ */
+.pms-search-section {
+  padding-top: 36px;
+  padding-bottom: 24px;
+}
+
+.pms-search-box {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 50px;
+  box-shadow: 0 4px 22px rgba(0, 0, 0, 0.08);
+  border: 1.5px solid #e9ecef;
+  overflow: hidden;
+  height: 56px;
+  transition: all 0.22s ease;
+}
+
+.pms-search-box:focus-within {
+  border-color: #e50914;
+  box-shadow: 0 6px 26px rgba(229, 9, 20, 0.16);
+}
+
+.pms-search-icon {
+  padding: 0 14px 0 22px;
+  font-size: 1.15rem;
+  color: #e50914;
+  flex-shrink: 0;
+}
+
+.pms-search-box input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 0.97rem;
+  font-weight: 500;
+  color: #1a1a24;
+  background: transparent;
+  height: 100%;
+}
+
+.pms-search-box input::placeholder {
+  color: #8c98a4;
+  font-weight: 400;
+}
+
+.pms-search-divider {
+  width: 1px;
+  height: 28px;
+  background: #e2e8f0;
+  flex-shrink: 0;
+}
+
+.pms-city-select-wrap {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  flex-shrink: 0;
+}
+
+.pms-city-select {
+  border: none;
+  outline: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #334155;
+  background: transparent;
+  padding: 0 8px;
+  height: 100%;
+  cursor: pointer;
+}
+
+.pms-search-btn {
+  height: 100%;
+  padding: 0 30px;
+  background: #e50914;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.94rem;
+  border: none;
+  border-radius: 0 50px 50px 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.pms-search-btn:hover {
+  background: #c50812;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. GENRE SELECTION BUTTONS STRIP
+   ═══════════════════════════════════════════════════════════ */
+.pms-cat-strip {
+  padding-bottom: 28px;
+}
+
+.pms-cat-pills {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 4px 2px;
+}
+
+.pms-cat-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.pms-cat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 25px;
+  padding: 8px 18px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #334155;
+  text-decoration: none !important;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+}
+
+.pms-cat-pill:hover {
+  background: #fdf2f2;
+  color: #e50914 !important;
+  border-color: #fca5a5;
+  transform: translateY(-1px);
+}
+
+.pms-cat-pill.pms-active {
+  background: #e50914 !important;
+  color: #ffffff !important;
+  border-color: #e50914 !important;
+  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.30) !important;
+  transform: translateY(-1px);
+}
+
+.pms-cat-pill.pms-active i {
+  color: #ffffff !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   4. MOVIE SECTIONS & CARDS
+   ═══════════════════════════════════════════════════════════ */
+.pms-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 22px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.pms-section-head h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1a1a24;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pms-section-head p {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin: 4px 0 0;
+}
+
+.pms-see-all {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #e50914;
+  text-decoration: none !important;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+
+.pms-see-all:hover {
+  color: #b80710;
+}
+
+.pms-movie-col {
+  transition: opacity 0.2s ease;
+}
+
+.pms-movie-card {
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.pms-movie-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+.pms-poster-wrap {
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.pms-poster {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.pms-movie-card:hover .pms-poster {
+  transform: scale(1.04);
+}
+
+.pms-no-poster {
+  width: 100%;
+  height: 280px;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 2.5rem;
+}
+
+.pms-rating-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.78);
+  color: #ffc107;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+}
+
+.pms-genre-tag {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: rgba(229, 9, 20, 0.92);
+  color: #ffffff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.pms-genre-tag:hover {
+  background: #b80710;
+  color: #ffffff;
+}
+
+.pms-card-body {
+  padding: 14px 16px 16px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.pms-card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1a24;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pms-card-meta {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pms-card-genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.pms-genre-pill-badge {
+  display: inline-block;
+  background: #f1f5f9;
+  color: #475569;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.pms-genre-pill-badge:hover {
+  background: #fee2e2;
+  color: #e50914;
+}
+
+.pms-book-btn {
+  display: block;
+  text-align: center;
+  background: transparent;
+  color: #e50914 !important;
+  font-weight: 700;
+  font-size: 0.84rem;
+  border-radius: 8px;
+  padding: 8px 0;
+  border: 1.5px solid #e50914;
+  text-decoration: none !important;
+  transition: all 0.18s ease;
+  letter-spacing: 0.3px;
+}
+
+.pms-book-btn:hover {
+  background: #e50914;
+  color: #ffffff !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   5. RESPONSIVE BREAKPOINTS
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 991px) {
+  .pms-hero-section .carousel-item,
+  .pms-hero-section .carousel-item img {
+    height: 280px;
+  }
+}
+
+@media (max-width: 767px) {
+  .pms-hero-section .carousel-item,
+  .pms-hero-section .carousel-item img {
+    height: 210px;
+  }
+  .pms-hero-section .carousel-control-prev,
+  .pms-hero-section .carousel-control-next {
+    width: 38px;
+    height: 38px;
+    margin: 0 10px;
+  }
+  .pms-search-section {
+    padding-top: 24px;
+    padding-bottom: 18px;
+  }
+  .pms-search-box {
+    height: 48px;
+  }
+  .pms-city-select-wrap,
+  .pms-search-divider {
+    display: none;
+  }
+  .pms-search-btn {
+    padding: 0 20px;
+    font-size: 0.88rem;
+  }
+  .pms-poster,
+  .pms-no-poster {
+    height: 220px;
+  }
+  .pms-section-head h2 {
+    font-size: 1.15rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pms-hero-section .carousel-item,
+  .pms-hero-section .carousel-item img {
+    height: 165px;
+  }
+  .pms-search-section {
+    padding-top: 20px;
+    padding-bottom: 16px;
+  }
+}
+</style>
+
+<!-- ═══════════════════════════════════════════════════════════
+     1. FULL-WIDTH EDGE-TO-EDGE HERO BANNER CAROUSEL (3-Second Interval)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="pms-hero-section">
+  <div id="pmsCarousel" class="carousel slide" data-ride="carousel" data-interval="3000">
+    
+    <!-- Dot indicators -->
+    <ol class="carousel-indicators">
+      {% for banner in hero_banners %}
+      <li data-target="#pmsCarousel" data-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active"{% endif %}></li>
+      {% empty %}
+      <li data-target="#pmsCarousel" data-slide-to="0" class="active"></li>
+      {% endfor %}
+    </ol>
+
+    <!-- Full-width banner slides -->
+    <div class="carousel-inner">
+      {% for banner in hero_banners %}
+      <div class="carousel-item {% if forloop.first %}active{% endif %}" data-interval="3000">
+        <a href="{{ banner.button_url }}">
+          <img src="{{ banner.image.url }}" alt="{{ banner.title }}" />
+        </a>
+      </div>
+      {% empty %}
+      <div class="carousel-item active" style="height:380px;background:linear-gradient(120deg,#1a1a2e 0%,#0f3460 100%);">
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Carousel navigation arrows -->
+    <a class="carousel-control-prev" href="#pmsCarousel" role="button" data-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="sr-only">Previous</span>
+    </a>
+    <a class="carousel-control-next" href="#pmsCarousel" role="button" data-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="sr-only">Next</span>
+    </a>
+
+  </div>
+</section>
+<!-- END FULL-WIDTH HERO -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     2. SEPARATED SEARCH BAR SECTION (Down Below Banners)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="pms-search-section">
+  <div class="container">
+    <form method="GET" action="{% url 'movie_list' %}">
+      <div class="pms-search-box">
+        <span class="pms-search-icon"><i class="fas fa-search"></i></span>
+        <input type="text" name="search"
+               placeholder="Search for Movies, Events, Plays, Sports and Activities..."
+               autocomplete="off" />
+        <div class="pms-search-divider"></div>
+        <div class="pms-city-select-wrap">
+          <i class="fas fa-map-marker-alt text-danger mr-1"></i>
+          <select class="pms-city-select" name="city" aria-label="Select City">
+            <option value="">All Cities</option>
+            {% for city in cities %}
+            <option value="{{ city }}" {% if selected_city == city or request.GET.city == city %}selected{% endif %}>{{ city }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="pms-search-btn">
+          <i class="fas fa-search mr-1 d-none d-sm-inline"></i> Search
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     3. GENRE SELECTION BUTTONS STRIP (Instant Click & Zero Reload)
+     ═══════════════════════════════════════════════════════════ -->
+<section class="pms-cat-strip">
+  <div class="container">
+    <div class="pms-cat-pills">
+      <button type="button" class="pms-cat-pill pms-active" data-genre="all" onclick="selectGenre('all')">
+        <i class="fas fa-film"></i> All Movies
+      </button>
+      <button type="button" class="pms-cat-pill" data-genre="Action" onclick="selectGenre('Action')">
+        <i class="fas fa-fire text-danger"></i> Action
+      </button>
+      <button type="button" class="pms-cat-pill" data-genre="Sci-Fi" onclick="selectGenre('Sci-Fi')">
+        <i class="fas fa-rocket text-primary"></i> Sci-Fi
+      </button>
+      <button type="button" class="pms-cat-pill" data-genre="Comedy" onclick="selectGenre('Comedy')">
+        <i class="fas fa-laugh text-warning"></i> Comedy
+      </button>
+      <button type="button" class="pms-cat-pill" data-genre="Drama" onclick="selectGenre('Drama')">
+        <i class="fas fa-theater-masks text-info"></i> Drama
+      </button>
+      <button type="button" class="pms-cat-pill" data-genre="Thriller" onclick="selectGenre('Thriller')">
+        <i class="fas fa-bolt text-danger"></i> Thriller
+      </button>
+      <button type="button" class="pms-cat-pill" data-genre="Horror" onclick="selectGenre('Horror')">
+        <i class="fas fa-ghost"></i> Horror
+      </button>
+      <button type="button" class="pms-cat-pill" data-genre="Romance" onclick="selectGenre('Romance')">
+        <i class="fas fa-heart text-danger"></i> Romance
+      </button>
+      <button type="button" class="pms-cat-pill" data-genre="Fantasy" onclick="selectGenre('Fantasy')">
+        <i class="fas fa-hat-wizard"></i> Fantasy
+      </button>
+      <button type="button" class="pms-cat-pill" data-genre="Animation" onclick="selectGenre('Animation')">
+        <i class="fas fa-star text-warning"></i> Animation
+      </button>
+      <button type="button" class="pms-cat-pill" data-genre="Adventure" onclick="selectGenre('Adventure')">
+        <i class="fas fa-compass text-success"></i> Adventure
+      </button>
+      <button type="button" class="pms-cat-pill" data-genre="top_rated" onclick="selectGenre('top_rated')">
+        <i class="fas fa-crown text-warning"></i> Top Rated
+      </button>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     4. MAIN MOVIE SECTIONS
+     ═══════════════════════════════════════════════════════════ -->
+<div class="container pb-5">
+
+  <!-- ── RECOMMENDED FOR YOU (Dynamic In-Page Filtering) ── -->
+  <section class="mb-5" id="recommended-section">
+    <div class="pms-section-head">
+      <div>
+        <h2 id="recommended-heading">
+          <i class="fas fa-magic text-danger mr-1"></i>
+          <span id="recommended-title-text">Recommended for You</span>
+          <span id="selected-genre-chip" class="badge badge-danger ml-2 px-3 py-1 font-weight-bold" style="display:none;font-size:0.75rem;cursor:pointer;" onclick="selectGenre('all')">
+            <span id="chip-genre-name"></span>
+            <i class="fas fa-times ml-1" title="Clear filter"></i>
+          </span>
+        </h2>
+        <p id="recommended-subtitle">
+          Curated picks based on your taste, booking history &amp; viewing preferences
+        </p>
+      </div>
+      <a href="{% url 'movie_list' %}" id="recommended-see-all" class="pms-see-all">
+        See All <i class="fas fa-chevron-right ml-1"></i>
+      </a>
+    </div>
+
+    <!-- Recommended Movies Grid -->
+    <div class="row" id="recommended-movie-grid" style="margin-left:-10px; margin-right:-10px;">
+      {% for movie in all_movies %}
+      <div class="col-6 col-sm-4 col-md-3 mb-4 pms-movie-col rec-card" 
+           data-genre="{{ movie.genre }}" 
+           data-rating="{{ movie.rating }}"
+           data-default="{% if forloop.counter <= 4 %}1{% else %}0{% endif %}"
+           style="padding:0 10px; {% if forloop.counter > 4 %}display:none;{% endif %}">
+        <div class="pms-movie-card">
+          <div class="pms-poster-wrap">
+            {% if movie.image %}
+            <img src="{{ movie.image.url }}" alt="{{ movie.name }}" class="pms-poster" />
+            {% else %}
+            <div class="pms-no-poster"><i class="fas fa-film"></i></div>
+            {% endif %}
+            <span class="pms-rating-badge"><i class="fas fa-star mr-1"></i>{{ movie.rating }}</span>
+            <span class="pms-genre-tag" onclick="selectGenre('{{ movie.genre }}')" title="Filter by {{ movie.genre }}">{{ movie.genre }}</span>
+          </div>
+          <div class="pms-card-body">
+            <div>
+              <div class="pms-card-title" title="{{ movie.name }}">{{ movie.name }}</div>
+              <div class="pms-card-meta">{{ movie.language }} &bull; {{ movie.duration }} min</div>
+              <div class="pms-card-genres">
+                <span class="pms-genre-pill-badge" onclick="selectGenre('{{ movie.genre }}')" title="Filter by {{ movie.genre }}">
+                  <i class="fas fa-tag mr-1 text-danger"></i>{{ movie.genre }}
+                </span>
+              </div>
+            </div>
+            <a href="{% url 'theater_list' movie.id %}" class="pms-book-btn">
+              <i class="fas fa-ticket-alt mr-1"></i> Book Tickets
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- ── NOW SHOWING (All Catalog / Filterable) ── -->
+  <section class="mb-5" id="now-showing-section">
+    <div class="pms-section-head">
+      <div>
+        <h2 id="now-showing-heading">
+          <i class="fas fa-film text-danger mr-1"></i>
+          <span id="now-showing-title-text">Now Showing in Theaters</span>
+        </h2>
+        <p id="now-showing-subtitle">Latest blockbusters playing in theaters across India</p>
+      </div>
+      <a href="{% url 'movie_list' %}" class="pms-see-all">
+        Explore All <i class="fas fa-chevron-right ml-1"></i>
+      </a>
+    </div>
+
+    <!-- Now Showing Movies Grid -->
+    <div class="row" id="now-showing-movie-grid" style="margin-left:-10px; margin-right:-10px;">
+      {% for movie in all_movies %}
+      <div class="col-6 col-sm-4 col-md-3 mb-4 pms-movie-col now-card" 
+           data-genre="{{ movie.genre }}" 
+           data-rating="{{ movie.rating }}" 
+           style="padding:0 10px;">
+        <div class="pms-movie-card">
+          <div class="pms-poster-wrap">
+            {% if movie.image %}
+            <img src="{{ movie.image.url }}" alt="{{ movie.name }}" class="pms-poster" />
+            {% else %}
+            <div class="pms-no-poster"><i class="fas fa-film"></i></div>
+            {% endif %}
+            <span class="pms-rating-badge"><i class="fas fa-star mr-1"></i>{{ movie.rating }}</span>
+            <span class="pms-genre-tag" onclick="selectGenre('{{ movie.genre }}')" title="Filter by {{ movie.genre }}">{{ movie.genre }}</span>
+          </div>
+          <div class="pms-card-body">
+            <div>
+              <div class="pms-card-title" title="{{ movie.name }}">{{ movie.name }}</div>
+              <div class="pms-card-meta">{{ movie.cast }}</div>
+              <div class="pms-card-genres">
+                <span class="pms-genre-pill-badge" onclick="selectGenre('{{ movie.genre }}')" title="Filter by {{ movie.genre }}">
+                  <i class="fas fa-tag mr-1 text-danger"></i>{{ movie.genre }}
+                </span>
+              </div>
+            </div>
+            <a href="{% url 'theater_list' movie.id %}" class="pms-book-btn">
+              <i class="fas fa-ticket-alt mr-1"></i> Book Now
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // 1. Rock-solid Pure Vanilla JavaScript Genre Filtering Function
+  function selectGenre(genre) {
+    if (!genre) genre = 'all';
+    var isAll = (genre.toLowerCase() === 'all');
+    var isTopRated = (genre.toLowerCase() === 'top_rated');
+
+    // Update active pill buttons
+    var pills = document.querySelectorAll('.pms-cat-pill');
+    for (var i = 0; i < pills.length; i++) {
+      var p = pills[i];
+      var g = p.getAttribute('data-genre') || '';
+      if ((isAll && g.toLowerCase() === 'all') || (!isAll && g.toLowerCase() === genre.toLowerCase())) {
+        p.classList.add('pms-active');
+      } else {
+        p.classList.remove('pms-active');
+      }
+    }
+
+    // Update Recommended Section Titles & Badge
+    var recTitle = document.getElementById('recommended-title-text');
+    var recSub = document.getElementById('recommended-subtitle');
+    var chip = document.getElementById('selected-genre-chip');
+    var chipName = document.getElementById('chip-genre-name');
+    var seeAll = document.getElementById('recommended-see-all');
+    var nowTitle = document.getElementById('now-showing-title-text');
+    var nowSub = document.getElementById('now-showing-subtitle');
+
+    if (recTitle) {
+      if (isAll) {
+        recTitle.textContent = 'Recommended for You';
+        if (recSub) recSub.textContent = 'Curated picks based on your taste, booking history & viewing preferences';
+        if (chip) chip.style.display = 'none';
+        if (seeAll) seeAll.href = "{% url 'movie_list' %}";
+        if (nowTitle) nowTitle.textContent = 'Now Showing in Theaters';
+        if (nowSub) nowSub.textContent = 'Latest blockbusters playing in theaters across India';
+      } else if (isTopRated) {
+        recTitle.textContent = 'Recommended for You • Top Rated';
+        if (recSub) recSub.textContent = 'Highest rated blockbusters acclaimed by audiences & critics';
+        if (chipName) chipName.textContent = 'Top Rated';
+        if (chip) chip.style.display = 'inline-block';
+        if (seeAll) seeAll.href = "{% url 'movie_list' %}?sort=rating";
+        if (nowTitle) nowTitle.textContent = 'Top Rated Movies in Theaters';
+        if (nowSub) nowSub.textContent = 'Top-rated films with rating 8.8 and above';
+      } else {
+        recTitle.textContent = 'Recommended for You • ' + genre;
+        if (recSub) recSub.textContent = 'Top-rated ' + genre + ' blockbusters curated for you';
+        if (chipName) chipName.textContent = genre;
+        if (chip) chip.style.display = 'inline-block';
+        if (seeAll) seeAll.href = "{% url 'movie_list' %}?genre=" + encodeURIComponent(genre);
+        if (nowTitle) nowTitle.textContent = genre + ' Movies in Theaters';
+        if (nowSub) nowSub.textContent = 'Explore all ' + genre + ' movies and showtimes';
+      }
+    }
+
+    // Filter Recommended Cards
+    var recCards = document.querySelectorAll('.rec-card');
+    for (var i = 0; i < recCards.length; i++) {
+      var card = recCards[i];
+      var cardGenre = card.getAttribute('data-genre') || '';
+      var cardRating = parseFloat(card.getAttribute('data-rating') || '0');
+      var isDef = card.getAttribute('data-default') === '1';
+
+      if (isAll) {
+        card.style.display = isDef ? '' : 'none';
+      } else if (isTopRated) {
+        card.style.display = (cardRating >= 8.8) ? '' : 'none';
+      } else {
+        card.style.display = (cardGenre.toLowerCase() === genre.toLowerCase()) ? '' : 'none';
+      }
+    }
+
+    // Filter Now Showing Cards
+    var nowCards = document.querySelectorAll('.now-card');
+    for (var i = 0; i < nowCards.length; i++) {
+      var card = nowCards[i];
+      var cardGenre = card.getAttribute('data-genre') || '';
+      var cardRating = parseFloat(card.getAttribute('data-rating') || '0');
+
+      if (isAll) {
+        card.style.display = '';
+      } else if (isTopRated) {
+        card.style.display = (cardRating >= 8.7) ? '' : 'none';
+      } else {
+        card.style.display = (cardGenre.toLowerCase() === genre.toLowerCase()) ? '' : 'none';
+      }
+    }
+
+    // Update browser URL state without reloading
+    if (window.history && window.history.replaceState) {
+      var newUrl = isAll ? window.location.pathname : window.location.pathname + '?genre=' + encodeURIComponent(genre);
+      window.history.replaceState(null, '', newUrl);
+    }
+  }
+
+  // 2. Initialize Carousel & check initial URL param
+  window.addEventListener('DOMContentLoaded', function() {
+    if (typeof $ !== 'undefined' && $('#pmsCarousel').length) {
+      $('#pmsCarousel').carousel({
+        interval: 3000,
+        ride: 'carousel',
+        pause: 'hover',
+        wrap: true
+      });
+    }
+
+    // Check if genre parameter exists in URL on initial page load
+    var urlParams = new URLSearchParams(window.location.search);
+    var initGenre = urlParams.get('genre');
+    if (initGenre) {
+      selectGenre(initGenre);
+    }
+  });
+</script>
+
+{% endblock %}

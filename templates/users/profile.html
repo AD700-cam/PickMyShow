@@ -1,0 +1,343 @@
+{% extends "users/basic.html" %}
+{% block title %}PickMyShow - {{ user.username }}'s Profile{% endblock %}
+
+{% block content %}
+<style>
+  .profile-avatar-box {
+    width: 90px;
+    height: 90px;
+    background: linear-gradient(135deg, #e50914 0%, #b80710 100%);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 2.2rem;
+    box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
+  }
+  .pms-profile-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    overflow: hidden;
+  }
+  .pms-card-header {
+    background: #1a1a24;
+    color: #fff;
+    padding: 16px 20px;
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+  .booking-order-card {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    padding: 18px 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .booking-order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  }
+  .booking-poster-img {
+    width: 75px;
+    height: 105px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .poster-placeholder {
+    width: 75px;
+    height: 105px;
+    background: #1a1a24;
+    color: #e50914;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.1rem;
+  }
+  .seat-badge-pill {
+    background: #e50914;
+    color: #fff;
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-right: 4px;
+    display: inline-block;
+  }
+  .badge-booking-id {
+    background: #eef2f7;
+    color: #2b4c7e;
+    font-family: monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid #d0dbe9;
+  }
+  .badge-pay-ref {
+    background: #f8f9fa;
+    color: #6c757d;
+    font-family: monospace;
+    font-size: 0.78rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+  }
+  .btn-ticket-download {
+    background-color: #e50914;
+    color: #fff !important;
+    font-weight: 700;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    padding: 6px 14px;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-ticket-download:hover {
+    background-color: #b80710;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(229,9,20,0.3);
+  }
+</style>
+
+<div class="container py-5">
+  <div class="row">
+    <!-- User Info Column -->
+    <div class="col-lg-4 mb-4">
+      <div class="pms-profile-card">
+        <div class="card-body text-center p-4">
+          <div class="mb-3">
+            <div class="profile-avatar-box">
+              <i class="fas fa-user"></i>
+            </div>
+          </div>
+          <h4 class="font-weight-bold mb-1 text-dark">{{ user.get_full_name|default:user.username }}</h4>
+          <p class="text-muted small mb-1">@{{ user.username }}</p>
+          <p class="text-muted small mb-3"><i class="fas fa-envelope mr-1 text-danger"></i> {{ user.email|default:"No email added" }}</p>
+          <span class="badge badge-success px-3 py-2 font-weight-bold mb-3"><i class="fas fa-check-circle mr-1"></i> Verified Moviegoer</span>
+
+          <hr class="my-3">
+          <a href="{% url 'password_reset' %}" class="btn btn-outline-secondary btn-sm btn-block font-weight-bold">
+            <i class="fas fa-key mr-1"></i> Change Password
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Column: Update Profile + Bookings -->
+    <div class="col-lg-8">
+      <!-- Edit Profile -->
+      <div class="pms-profile-card mb-4">
+        <div class="pms-card-header d-flex align-items-center">
+          <i class="fas fa-user-edit text-danger mr-2"></i> Update Profile Details
+        </div>
+        <div class="card-body p-4">
+          <form method="POST">
+            {% csrf_token %}
+            <div class="form-row">
+              {% for field in u_form %}
+              <div class="col-md-6 mb-3">
+                <label for="{{ field.id_for_label }}" class="font-weight-bold text-dark small">
+                  {{ field.label }}
+                </label>
+                {{ field }}
+                {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endfor %}
+            </div>
+            <button class="btn btn-danger font-weight-bold px-4 py-2 mt-2" type="submit">
+              <i class="fas fa-save mr-1"></i> Save Changes
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Bookings History -->
+      <div class="pms-profile-card mb-4">
+        <div class="pms-card-header d-flex justify-content-between align-items-center flex-wrap">
+          <div><i class="fas fa-ticket-alt text-danger mr-2"></i> Your Booking History</div>
+          <span class="badge badge-danger font-weight-bold">{{ total_orders_count|default:booking_orders|length }} Confirmed Orders</span>
+        </div>
+        <div class="card-body p-4">
+          {% if booking_orders %}
+            {% for order in booking_orders %}
+            <div class="booking-order-card">
+              <div class="row align-items-center">
+                <!-- Movie Poster Thumbnail -->
+                <div class="col-auto mb-3 mb-sm-0">
+                  {% if order.movie.image %}
+                  <img src="{{ order.movie.image.url }}" alt="{{ order.movie.name }}" class="booking-poster-img" />
+                  {% else %}
+                  <div class="poster-placeholder">PMS</div>
+                  {% endif %}
+                </div>
+
+                <!-- Order Details -->
+                <div class="col">
+                  <div class="d-flex justify-content-between align-items-start flex-wrap mb-1">
+                    <h5 class="font-weight-bold text-dark mb-1 mr-2">{{ order.movie.name }}</h5>
+                    <span class="badge-booking-id mb-1">{{ order.booking_id }}</span>
+                  </div>
+
+                  <p class="text-muted small mb-2">
+                    <i class="fas fa-map-marker-alt text-danger mr-1"></i> <strong>{{ order.theater.name }}</strong> ({{ order.theater.city }})
+                    &bull; <span class="text-primary font-weight-bold">{{ order.theater.screen_name }}</span>
+                  </p>
+
+                  <div class="d-flex flex-wrap align-items-center mb-2 small text-muted">
+                    <span class="mr-3 mb-1">
+                      <i class="far fa-calendar-alt text-warning mr-1"></i> {{ order.theater.time|date:"D, d M Y - h:i A" }}
+                    </span>
+                    <span class="mr-3 mb-1">
+                      <i class="fas fa-couch text-danger mr-1"></i>
+                      Seats:
+                      {% for s in order.seats %}
+                      <span class="seat-badge-pill">{{ s }}</span>
+                      {% endfor %}
+                    </span>
+                  </div>
+
+                  <div class="d-flex justify-content-between align-items-center flex-wrap pt-2 border-top">
+                    <div class="mb-2 mb-sm-0">
+                      <span class="text-success font-weight-bold h6 mb-0 mr-2">&#8377;{{ order.total_amount }}</span>
+                      <span class="badge badge-success font-weight-bold mr-2"><i class="fas fa-check mr-1"></i> Paid</span>
+                      <span class="badge-pay-ref d-none d-md-inline-block">{{ order.payment_reference }}</span>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="btn-group btn-group-sm">
+                      <a href="{% url 'download_ticket' order.booking_id %}" class="btn btn-ticket-download mr-1" title="Download PDF E-Ticket with QR Code">
+                        <i class="fas fa-file-pdf mr-1"></i> PDF Ticket
+                      </a>
+                      <a href="{% url 'view_ticket' order.booking_id %}" target="_blank" class="btn btn-outline-secondary font-weight-bold mr-1" title="View in browser">
+                        <i class="fas fa-eye"></i>
+                      </a>
+                      <a href="{% url 'resend_ticket_email' order.booking_id %}" class="btn btn-outline-info font-weight-bold" title="Resend email confirmation">
+                        <i class="fas fa-paper-plane"></i>
+                      </a>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+          <div class="text-center py-5">
+            <i class="fas fa-ticket-alt fa-3x text-muted mb-3 d-block"></i>
+            <h6 class="font-weight-bold text-dark">No movie bookings yet</h6>
+            <p class="text-muted small mb-3">Explore top blockbusters and book your favorite seats today!</p>
+            <a href="{% url 'movie_list' %}" class="btn btn-danger font-weight-bold btn-sm px-4">
+              <i class="fas fa-film mr-1"></i> Browse Movies
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Payment Transactions History -->
+      <div class="pms-profile-card">
+        <div class="pms-card-header d-flex justify-content-between align-items-center flex-wrap">
+          <div><i class="fas fa-receipt text-danger mr-2"></i> Payment & Transaction History</div>
+          <span class="badge badge-secondary font-weight-bold">{{ transactions|length }} Transactions</span>
+        </div>
+        <div class="card-body p-4">
+          {% if transactions %}
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="thead-light">
+                  <tr class="small text-muted text-uppercase font-weight-bold">
+                    <th>Date & Time</th>
+                    <th>Movie & Seats</th>
+                    <th>Order Reference</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for txn in transactions %}
+                  <tr>
+                    <td class="small text-muted align-middle">
+                      <div>{{ txn.created_at|date:"d M Y" }}</div>
+                      <small class="text-muted">{{ txn.created_at|date:"h:i A" }}</small>
+                    </td>
+                    <td class="align-middle">
+                      <strong class="text-dark d-block mb-1">{{ txn.movie.name }}</strong>
+                      <span class="small text-muted">
+                        <i class="fas fa-couch text-danger mr-1"></i> {{ txn.seat_numbers }}
+                      </span>
+                    </td>
+                    <td class="align-middle">
+                      <code class="small text-primary font-weight-bold d-block">{{ txn.order_id }}</code>
+                      {% if txn.payment_id %}
+                      <small class="text-muted font-monospace">{{ txn.payment_id }}</small>
+                      {% endif %}
+                    </td>
+                    <td class="align-middle font-weight-bold text-dark">
+                      &#8377;{{ txn.amount }}
+                    </td>
+                    <td class="align-middle">
+                      {% if txn.status == 'SUCCESS' %}
+                        <span class="badge badge-success px-2 py-1 font-weight-bold">
+                          <i class="fas fa-check-circle mr-1"></i> Success
+                        </span>
+                      {% elif txn.status == 'PENDING' or txn.status == 'INITIATED' %}
+                        <span class="badge badge-warning px-2 py-1 font-weight-bold text-dark">
+                          <i class="fas fa-clock mr-1"></i> Pending
+                        </span>
+                      {% elif txn.status == 'FAILED' %}
+                        <span class="badge badge-danger px-2 py-1 font-weight-bold" title="{{ txn.error_description }}">
+                          <i class="fas fa-times-circle mr-1"></i> Failed
+                        </span>
+                      {% elif txn.status == 'CANCELLED' %}
+                        <span class="badge badge-secondary px-2 py-1 font-weight-bold">
+                          <i class="fas fa-ban mr-1"></i> Cancelled
+                        </span>
+                      {% else %}
+                        <span class="badge badge-info px-2 py-1 font-weight-bold">{{ txn.status }}</span>
+                      {% endif %}
+                    </td>
+                    <td class="align-middle">
+                      {% if txn.status == 'SUCCESS' %}
+                        <a href="{% url 'payment_success' txn.booking_id %}" class="btn btn-sm btn-outline-success font-weight-bold" title="View Receipt">
+                          <i class="fas fa-check mr-1"></i> Receipt
+                        </a>
+                      {% elif txn.status == 'FAILED' or txn.status == 'CANCELLED' %}
+                        <a href="{% url 'retry_payment' txn.id %}" class="btn btn-sm btn-outline-danger font-weight-bold" title="Retry Payment">
+                          <i class="fas fa-redo-alt mr-1"></i> Retry
+                        </a>
+                      {% else %}
+                        <span class="text-muted small">-</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="text-center py-4 text-muted">
+              <i class="fas fa-credit-card fa-2x mb-2 d-block text-muted"></i>
+              <span class="small font-weight-bold">No payment transactions recorded yet.</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

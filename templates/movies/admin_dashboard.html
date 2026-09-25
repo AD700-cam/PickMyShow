@@ -1,0 +1,981 @@
+{% extends "users/basic.html" %}
+{% load static %}
+
+{% block title %}Admin Business Intelligence Dashboard - PickMyShow{% endblock %}
+
+{% block content %}
+<!-- Chart.js 3.9+ CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
+<style>
+  :root {
+    --dash-bg: #f4f6fb;
+    --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+    --card-radius: 12px;
+    --primary-red: #e50914;
+    --dark-navy: #161824;
+    --accent-emerald: #10b981;
+    --accent-amber: #f59e0b;
+    --accent-indigo: #6366f1;
+    --accent-cyan: #06b6d4;
+  }
+
+  body {
+    background-color: var(--dash-bg);
+  }
+
+  .dashboard-wrapper {
+    padding: 28px 0 60px;
+  }
+
+  /* Header Card */
+  .dash-header-card {
+    background: linear-gradient(135deg, #181926 0%, #25283d 100%);
+    color: #ffffff;
+    border-radius: var(--card-radius);
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 24px rgba(22, 24, 36, 0.2);
+  }
+
+  .badge-live-pulse {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    border-radius: 30px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #10b981;
+    border-radius: 50%;
+    margin-right: 6px;
+    box-shadow: 0 0 8px #10b981;
+    animation: livePulse 1.8s infinite;
+  }
+
+  @keyframes livePulse {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.7; }
+  }
+
+  /* Filter Toolbar */
+  .filter-toolbar-card {
+    background: #ffffff;
+    border-radius: var(--card-radius);
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid #e2e8f0;
+  }
+
+  .preset-pills-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .preset-pill {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+  }
+
+  .preset-pill:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+
+  .preset-pill.active {
+    background: var(--primary-red);
+    color: #ffffff;
+    border-color: var(--primary-red);
+    box-shadow: 0 2px 8px rgba(229, 9, 20, 0.3);
+  }
+
+  /* Metric KPI Cards */
+  .kpi-card {
+    background: #ffffff;
+    border-radius: var(--card-radius);
+    padding: 22px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+  }
+
+  .kpi-revenue::before { background: linear-gradient(90deg, #10b981, #059669); }
+  .kpi-bookings::before { background: linear-gradient(90deg, #3b82f6, #1d4ed8); }
+  .kpi-occupancy::before { background: linear-gradient(90deg, #8b5cf6, #6d28d9); }
+  .kpi-netrev::before { background: linear-gradient(90deg, #06b6d4, #0891b2); }
+  .kpi-cancel::before { background: linear-gradient(90deg, #ef4444, #dc2626); }
+  .kpi-users::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
+
+  .kpi-icon-wrap {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+  }
+
+  .kpi-revenue .kpi-icon-wrap { background: rgba(16, 185, 129, 0.12); color: #059669; }
+  .kpi-bookings .kpi-icon-wrap { background: rgba(59, 130, 246, 0.12); color: #1d4ed8; }
+  .kpi-occupancy .kpi-icon-wrap { background: rgba(139, 92, 246, 0.12); color: #6d28d9; }
+  .kpi-netrev .kpi-icon-wrap { background: rgba(6, 182, 212, 0.12); color: #0891b2; }
+  .kpi-cancel .kpi-icon-wrap { background: rgba(239, 68, 68, 0.12); color: #dc2626; }
+  .kpi-users .kpi-icon-wrap { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+
+  .kpi-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .kpi-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .kpi-subtext {
+    font-size: 0.8rem;
+    color: #64748b;
+  }
+
+  /* Chart & Table Cards */
+  .dash-card {
+    background: #ffffff;
+    border-radius: var(--card-radius);
+    padding: 22px 24px;
+    box-shadow: var(--card-shadow);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 24px;
+  }
+
+  .dash-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+  }
+
+  .dash-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .dash-card-title i {
+    margin-right: 8px;
+    color: var(--primary-red);
+  }
+
+  .chart-canvas-wrap {
+    position: relative;
+    height: 290px;
+    width: 100%;
+  }
+
+  /* Occupancy Progress Bar */
+  .occupancy-bar-bg {
+    background: #e2e8f0;
+    border-radius: 8px;
+    height: 8px;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .occupancy-bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.5s ease;
+  }
+
+  .bar-emerald { background: #10b981; }
+  .bar-blue { background: #3b82f6; }
+  .bar-amber { background: #f59e0b; }
+  .bar-red { background: #ef4444; }
+
+  /* Custom table styling */
+  .dash-table {
+    margin-bottom: 0;
+  }
+
+  .dash-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border-top: none;
+    border-bottom: 2px solid #e2e8f0;
+    padding: 12px 14px;
+  }
+
+  .dash-table td {
+    padding: 12px 14px;
+    vertical-align: middle;
+    font-size: 0.9rem;
+    color: #1e293b;
+    border-color: #f1f5f9;
+  }
+
+  .dash-table tr:hover td {
+    background: #f8fafc;
+  }
+
+  /* Quick Stats Micro Badges */
+  .micro-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: #334155;
+    margin-right: 4px;
+  }
+
+  /* Responsive tweaks */
+  @media (max-width: 768px) {
+    .kpi-value { font-size: 1.45rem; }
+    .chart-canvas-wrap { height: 240px; }
+    .dash-header-card { padding: 18px 20px; }
+  }
+</style>
+
+<div class="dashboard-wrapper">
+  <div class="container-fluid px-lg-5">
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         1. EXECUTIVE DASHBOARD HEADER & QUICK EXPORTS
+         ══════════════════════════════════════════════════════════════════ -->
+    <div class="dash-header-card">
+      <div class="row align-items-center">
+        <div class="col-lg-7 mb-3 mb-lg-0">
+          <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+            <span class="badge-live-pulse mr-2">
+              <span class="pulse-dot"></span> Real-Time Analytics
+            </span>
+            <span class="badge badge-secondary py-1 px-2">
+              <i class="fas fa-shield-alt mr-1"></i> Admin Privileges Verified
+            </span>
+            <span class="badge badge-dark py-1 px-2">
+              <i class="fas fa-user-circle mr-1"></i> Signed in as: <strong>{{ request.user.username }}</strong>
+            </span>
+          </div>
+          <h2 class="font-weight-bold mb-1">
+            <i class="fas fa-chart-line text-danger mr-2"></i>Executive Business Intelligence Dashboard
+          </h2>
+          <p class="text-light mb-0 small opacity-75">
+            Real-time revenue monitoring, theater occupancy rates, customer booking patterns, and user growth analytics powered by optimized Django ORM aggregations.
+          </p>
+        </div>
+
+        <div class="col-lg-5 text-lg-right">
+          <!-- CSV Export Dropdown -->
+          <div class="dropdown d-inline-block">
+            <button class="btn btn-danger dropdown-toggle font-weight-bold shadow-sm px-3 py-2" type="button" id="exportDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-file-csv mr-1"></i> Export Reports (CSV)
+            </button>
+            <div class="dropdown-menu dropdown-menu-right shadow-lg border-0 py-2" aria-labelledby="exportDropdown" style="border-radius:10px;">
+              <h6 class="dropdown-header text-uppercase font-weight-bold" style="font-size:0.75rem;">Download Filtered Reports</h6>
+              <a class="dropdown-item py-2" href="{% url 'export_revenue_csv' %}?start_date={{ start_date }}&end_date={{ end_date }}&city={{ selected_city }}&movie_id={{ selected_movie_id }}&theater_id={{ selected_theater_id }}&preset={{ active_preset }}">
+                <i class="fas fa-chart-pie text-success mr-2"></i> Revenue & Business Summary CSV
+              </a>
+              <a class="dropdown-item py-2" href="{% url 'export_theaters_csv' %}?start_date={{ start_date }}&end_date={{ end_date }}&city={{ selected_city }}&movie_id={{ selected_movie_id }}&theater_id={{ selected_theater_id }}&preset={{ active_preset }}">
+                <i class="fas fa-building text-primary mr-2"></i> Theater Performance & Occupancy CSV
+              </a>
+              <a class="dropdown-item py-2" href="{% url 'export_movies_csv' %}?start_date={{ start_date }}&end_date={{ end_date }}&city={{ selected_city }}&movie_id={{ selected_movie_id }}&theater_id={{ selected_theater_id }}&preset={{ active_preset }}">
+                <i class="fas fa-film text-warning mr-2"></i> Most Booked Movies CSV
+              </a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item py-2" href="{% url 'export_bookings_csv' %}?start_date={{ start_date }}&end_date={{ end_date }}&city={{ selected_city }}&movie_id={{ selected_movie_id }}&theater_id={{ selected_theater_id }}&preset={{ active_preset }}">
+                <i class="fas fa-list-alt text-info mr-2"></i> Granular Bookings Transaction Ledger CSV
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         2. TIME-FRAME PRESETS & CUSTOM DATE FILTER TOOLBAR
+         ══════════════════════════════════════════════════════════════════ -->
+    <div class="filter-toolbar-card">
+      <!-- Quick Range Presets -->
+      <div class="d-flex align-items-center justify-content-between flex-wrap">
+        <div>
+          <span class="text-muted font-weight-bold small mr-2 text-uppercase">Time Range Presets:</span>
+          <div class="preset-pills-wrap d-inline-flex">
+            <a href="?preset=today" class="preset-pill {% if active_preset == 'today' %}active{% endif %}">
+              <i class="fas fa-calendar-day mr-1"></i> Today
+            </a>
+            <a href="?preset=7d" class="preset-pill {% if active_preset == '7d' %}active{% endif %}">
+              7 Days
+            </a>
+            <a href="?preset=30d" class="preset-pill {% if active_preset == '30d' %}active{% endif %}">
+              30 Days
+            </a>
+            <a href="?preset=month" class="preset-pill {% if active_preset == 'month' %}active{% endif %}">
+              This Month
+            </a>
+            <a href="?preset=year" class="preset-pill {% if active_preset == 'year' %}active{% endif %}">
+              This Year
+            </a>
+            <a href="?preset=all" class="preset-pill {% if active_preset == 'all' %}active{% endif %}">
+              All Time
+            </a>
+          </div>
+        </div>
+        <div class="small text-muted font-weight-bold">
+          Active Filter Window: <span class="text-dark">{{ start_date }}</span> to <span class="text-dark">{{ end_date }}</span>
+        </div>
+      </div>
+
+      <hr class="my-2" style="border-color: #f1f5f9;">
+
+      <!-- Custom Date & Attribute Filter Form -->
+      <form method="GET" action="{% url 'admin_dashboard' %}" class="row align-items-end mt-2">
+        <div class="col-md-3 col-sm-6 mb-2">
+          <label class="small font-weight-bold text-muted mb-1"><i class="far fa-calendar-alt mr-1"></i> From Date</label>
+          <input type="date" class="form-control form-control-sm" name="start_date" value="{{ start_date }}" required>
+        </div>
+
+        <div class="col-md-3 col-sm-6 mb-2">
+          <label class="small font-weight-bold text-muted mb-1"><i class="far fa-calendar-alt mr-1"></i> To Date</label>
+          <input type="date" class="form-control form-control-sm" name="end_date" value="{{ end_date }}" required>
+        </div>
+
+        <div class="col-md-2 col-sm-4 mb-2">
+          <label class="small font-weight-bold text-muted mb-1"><i class="fas fa-map-marker-alt mr-1"></i> City</label>
+          <select class="form-control form-control-sm" name="city">
+            <option value="">All Cities</option>
+            {% for c in cities %}
+            <option value="{{ c }}" {% if selected_city == c %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2 col-sm-4 mb-2">
+          <label class="small font-weight-bold text-muted mb-1"><i class="fas fa-film mr-1"></i> Movie</label>
+          <select class="form-control form-control-sm" name="movie_id">
+            <option value="">All Movies</option>
+            {% for m in movies_dropdown %}
+            <option value="{{ m.id }}" {% if selected_movie_id == m.id|stringformat:"s" %}selected{% endif %}>{{ m.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-2 col-sm-4 mb-2 text-right">
+          <button type="submit" class="btn btn-sm btn-dark font-weight-bold px-3">
+            <i class="fas fa-filter mr-1"></i> Apply
+          </button>
+          <a href="{% url 'admin_dashboard' %}" class="btn btn-sm btn-outline-secondary ml-1" title="Reset Filters">
+            <i class="fas fa-undo"></i>
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         3. REAL-TIME KPI METRIC CARDS
+         ══════════════════════════════════════════════════════════════════ -->
+    <div class="row">
+      <!-- 1. Total Gross Revenue -->
+      <div class="col-xl-4 col-md-6">
+        <div class="kpi-card kpi-revenue">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="kpi-label">Selected Range Gross Revenue</div>
+              <div class="kpi-value text-success">₹{{ revenue_metrics.filtered_revenue|floatformat:2 }}</div>
+            </div>
+            <div class="kpi-icon-wrap">
+              <i class="fas fa-rupee-sign"></i>
+            </div>
+          </div>
+          <div class="mt-2 pt-2 border-top">
+            <div class="d-flex justify-content-between small text-muted">
+              <span>Today: <strong class="text-dark">₹{{ revenue_metrics.daily_revenue|floatformat:0 }}</strong></span>
+              <span>7 Days: <strong class="text-dark">₹{{ revenue_metrics.weekly_revenue|floatformat:0 }}</strong></span>
+              <span>30 Days: <strong class="text-dark">₹{{ revenue_metrics.monthly_revenue|floatformat:0 }}</strong></span>
+            </div>
+            <div class="small text-muted mt-1">
+              All-Time Gross: <strong class="text-dark">₹{{ revenue_metrics.all_time_revenue|floatformat:0 }}</strong> across {{ revenue_metrics.all_time_bookings }} bookings
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Total Bookings Volume -->
+      <div class="col-xl-4 col-md-6">
+        <div class="kpi-card kpi-bookings">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="kpi-label">Tickets / Bookings Confirmed</div>
+              <div class="kpi-value text-primary">{{ revenue_metrics.filtered_bookings|default:"0" }}</div>
+            </div>
+            <div class="kpi-icon-wrap">
+              <i class="fas fa-ticket-alt"></i>
+            </div>
+          </div>
+          <div class="mt-2 pt-2 border-top">
+            <div class="d-flex justify-content-between small text-muted">
+              <span>Average Ticket: <strong class="text-dark">₹{{ revenue_metrics.avg_ticket_value }}</strong></span>
+              <span>Today's Tickets: <strong class="text-dark">{{ revenue_metrics.daily_bookings }}</strong></span>
+            </div>
+            <div class="small text-muted mt-1">
+              Confirmed Ratio: <strong class="text-success">{{ cancellations.confirmed_bookings }}</strong> valid / {{ cancellations.total_bookings }} total attempts
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Network Occupancy Rate -->
+      <div class="col-xl-4 col-md-6">
+        <div class="kpi-card kpi-occupancy">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="kpi-label">Auditorium Occupancy Rate</div>
+              <div class="kpi-value text-purple" style="color:#6d28d9;">{{ occupancy.network_occupancy_pct }}%</div>
+            </div>
+            <div class="kpi-icon-wrap">
+              <i class="fas fa-chair"></i>
+            </div>
+          </div>
+          <div class="mt-2 pt-2 border-top">
+            <div class="d-flex justify-content-between small text-muted mb-1">
+              <span>Booked: <strong>{{ occupancy.total_booked }}</strong></span>
+              <span>Total Capacity: <strong>{{ occupancy.total_capacity }}</strong> seats</span>
+            </div>
+            <div class="occupancy-bar-bg">
+              <div class="occupancy-bar-fill {% if occupancy.network_occupancy_pct >= 75 %}bar-emerald{% elif occupancy.network_occupancy_pct >= 40 %}bar-blue{% else %}bar-amber{% endif %}" style="width: {{ occupancy.network_occupancy_pct }}%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Net Revenue (After Refunds) -->
+      <div class="col-xl-4 col-md-6">
+        <div class="kpi-card kpi-netrev">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="kpi-label">Net Realized Revenue</div>
+              <div class="kpi-value text-info">₹{{ cancellations.net_revenue|floatformat:2 }}</div>
+            </div>
+            <div class="kpi-icon-wrap">
+              <i class="fas fa-wallet"></i>
+            </div>
+          </div>
+          <div class="mt-2 pt-2 border-top">
+            <div class="d-flex justify-content-between small text-muted">
+              <span>Total Refunded: <strong class="text-danger">₹{{ cancellations.refunded_amount|floatformat:0 }}</strong></span>
+              <span>Refund Rate: <strong class="text-dark">{{ cancellations.refund_rate }}%</strong></span>
+            </div>
+            <div class="small text-muted mt-1">
+              Successful Transactions: <strong class="text-dark">{{ cancellations.success_txns }}</strong> / {{ cancellations.total_txns }} attempts
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Cancellation Rate & Lost Revenue -->
+      <div class="col-xl-4 col-md-6">
+        <div class="kpi-card kpi-cancel">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="kpi-label">Booking Cancellation Rate</div>
+              <div class="kpi-value text-danger">{{ cancellations.cancellation_rate }}%</div>
+            </div>
+            <div class="kpi-icon-wrap">
+              <i class="fas fa-ban"></i>
+            </div>
+          </div>
+          <div class="mt-2 pt-2 border-top">
+            <div class="d-flex justify-content-between small text-muted">
+              <span>Cancelled Bookings: <strong class="text-danger">{{ cancellations.cancelled_bookings }}</strong></span>
+              <span>Failed Txns: <strong class="text-dark">{{ cancellations.failed_txns }}</strong></span>
+            </div>
+            <div class="small text-muted mt-1">
+              Lost Potential Revenue: <strong class="text-danger">₹{{ cancellations.lost_revenue|floatformat:0 }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. User Growth & Customer Engagement -->
+      <div class="col-xl-4 col-md-6">
+        <div class="kpi-card kpi-users">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="kpi-label">Active Booking Patrons</div>
+              <div class="kpi-value text-warning">{{ user_growth.active_users }}</div>
+            </div>
+            <div class="kpi-icon-wrap">
+              <i class="fas fa-users"></i>
+            </div>
+          </div>
+          <div class="mt-2 pt-2 border-top">
+            <div class="d-flex justify-content-between small text-muted">
+              <span>Total Registered Users: <strong class="text-dark">{{ user_growth.total_users }}</strong></span>
+              <span>Customer Ratio: <strong class="text-dark">{{ user_growth.active_user_ratio }}%</strong></span>
+            </div>
+            <div class="small text-muted mt-1">
+              New Registrations in Window: <strong class="text-success">+{{ user_growth.new_users_in_period }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         4. VISUAL CHARTING SECTION (INTERACTIVE CHART.JS)
+         ══════════════════════════════════════════════════════════════════ -->
+    <div class="row mt-2">
+      <!-- Chart 1: Revenue & Bookings Daily Trends -->
+      <div class="col-lg-8">
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h5 class="dash-card-title">
+              <i class="fas fa-chart-area"></i> Revenue & Booking Volume Trends
+            </h5>
+            <span class="badge badge-light border">Daily Aggregation</span>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="revenueTrendChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart 2: Peak Customer Booking Hours -->
+      <div class="col-lg-4">
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h5 class="dash-card-title">
+              <i class="fas fa-clock"></i> Peak Booking Hours
+            </h5>
+            <span class="badge badge-danger">Peak: {{ peak_hours.peak_hour_label }}</span>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="peakHoursChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Chart 3: Most Booked Movies -->
+      <div class="col-lg-4">
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h5 class="dash-card-title">
+              <i class="fas fa-trophy"></i> Most Booked Movies
+            </h5>
+            <span class="badge badge-light border">Top Grossing</span>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="moviesChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart 4: Top Performing Theaters -->
+      <div class="col-lg-4">
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h5 class="dash-card-title">
+              <i class="fas fa-city"></i> Top Performing Theaters
+            </h5>
+            <span class="badge badge-light border">By Revenue</span>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="theatersChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart 5: Cancellation & Payment Status Breakdown -->
+      <div class="col-lg-4">
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h5 class="dash-card-title">
+              <i class="fas fa-pie-chart"></i> Transaction Status
+            </h5>
+            <span class="badge badge-light border">Payment Health</span>
+          </div>
+          <div class="chart-canvas-wrap">
+            <canvas id="cancellationsChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         5. THEATER OCCUPANCY BREAKDOWN TABLE
+         ══════════════════════════════════════════════════════════════════ -->
+    <div class="dash-card mt-3">
+      <div class="dash-card-header">
+        <h5 class="dash-card-title">
+          <i class="fas fa-building"></i> Theater Auditorium Occupancy & Revenue Performance
+        </h5>
+        <span class="text-muted small font-weight-bold">
+          Displaying {{ occupancy.theaters|length }} Auditoriums
+        </span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table dash-table table-hover">
+          <thead>
+            <tr>
+              <th>Theater / Venue</th>
+              <th>City</th>
+              <th>Scheduled Movie</th>
+              <th>Screen</th>
+              <th>Capacity</th>
+              <th>Booked</th>
+              <th style="min-width: 140px;">Occupancy Rate</th>
+              <th>Tickets Sold</th>
+              <th>Gross Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in occupancy.theaters %}
+            <tr>
+              <td class="font-weight-bold">{{ t.name }}</td>
+              <td><span class="micro-badge"><i class="fas fa-map-marker-alt text-danger mr-1"></i>{{ t.city }}</span></td>
+              <td>{{ t.movie.name|truncatechars:26 }}</td>
+              <td class="text-muted small">{{ t.screen_name }}</td>
+              <td>{{ t.total_seats }}</td>
+              <td><strong>{{ t.booked_seats }}</strong></td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <span class="font-weight-bold mr-2" style="font-size:0.85rem; width:45px;">{{ t.occupancy_pct|floatformat:1 }}%</span>
+                  <div class="occupancy-bar-bg flex-grow-1">
+                    <div class="occupancy-bar-fill {% if t.occupancy_pct >= 75 %}bar-emerald{% elif t.occupancy_pct >= 40 %}bar-blue{% else %}bar-amber{% endif %}" style="width: {{ t.occupancy_pct }}%;"></div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge badge-light border">{{ t.bookings_count }}</span></td>
+              <td class="font-weight-bold text-success">₹{{ t.total_revenue|floatformat:0 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="9" class="text-center py-4 text-muted">
+                <i class="fas fa-info-circle mr-1"></i> No theater auditoriums match the selected filters.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         6. RECENT BOOKINGS TRANSACTION AUDIT LOG
+         ══════════════════════════════════════════════════════════════════ -->
+    <div class="dash-card mt-3">
+      <div class="dash-card-header">
+        <h5 class="dash-card-title">
+          <i class="fas fa-history"></i> Recent Booking Activity Ledger
+        </h5>
+        <a href="{% url 'export_bookings_csv' %}?start_date={{ start_date }}&end_date={{ end_date }}&city={{ selected_city }}&movie_id={{ selected_movie_id }}&theater_id={{ selected_theater_id }}" class="btn btn-sm btn-outline-dark font-weight-bold">
+          <i class="fas fa-download mr-1"></i> Download Full Ledger (CSV)
+        </a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table dash-table table-hover">
+          <thead>
+            <tr>
+              <th>Booking ID</th>
+              <th>Booked At</th>
+              <th>Customer</th>
+              <th>Movie</th>
+              <th>Theater / City</th>
+              <th>Seat</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Ticket</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in recent_bookings %}
+            <tr>
+              <td><code class="font-weight-bold text-dark">{{ b.booking_id }}</code></td>
+              <td class="small text-muted">{{ b.booked_at|date:"d M Y, h:i A" }}</td>
+              <td><strong>{{ b.user.username }}</strong></td>
+              <td>{{ b.movie.name|truncatechars:22 }}</td>
+              <td>{{ b.theater.name|truncatechars:20 }} <span class="text-muted small">({{ b.theater.city }})</span></td>
+              <td><span class="badge badge-secondary">{{ b.seat.seat_number }}</span></td>
+              <td class="font-weight-bold">₹{{ b.total_price|floatformat:0 }}</td>
+              <td>
+                {% if b.payment_status == 'CONFIRMED' or b.payment_status == 'PAID' %}
+                  <span class="badge badge-success px-2 py-1"><i class="fas fa-check-circle mr-1"></i>{{ b.payment_status }}</span>
+                {% elif b.payment_status == 'CANCELLED' %}
+                  <span class="badge badge-danger px-2 py-1"><i class="fas fa-times-circle mr-1"></i>CANCELLED</span>
+                {% else %}
+                  <span class="badge badge-warning px-2 py-1">{{ b.payment_status }}</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{% url 'view_ticket' b.booking_id %}" target="_blank" class="btn btn-xs btn-outline-primary py-0 px-2" style="font-size:0.75rem;">
+                  <i class="fas fa-external-link-alt"></i> View
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="9" class="text-center py-4 text-muted">
+                <i class="fas fa-info-circle mr-1"></i> No recent bookings recorded in this timeframe.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     7. JAVASCRIPT: CHART.JS INITIALIZATION & DATA BINDING
+     ══════════════════════════════════════════════════════════════════ -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const trendsData = {{ trends_json|safe }};
+  const moviesData = {{ movies_chart_json|safe }};
+  const theatersData = {{ theaters_chart_json|safe }};
+  const peakHoursData = {{ peak_hours_json|safe }};
+  const cancelData = {{ cancellations_chart_json|safe }};
+
+  // 1. Dual-Axis Revenue & Bookings Trend Chart
+  const ctxRevenue = document.getElementById('revenueTrendChart').getContext('2d');
+  new Chart(ctxRevenue, {
+    type: 'bar',
+    data: {
+      labels: trendsData.labels && trendsData.labels.length > 0 ? trendsData.labels : ['No Data'],
+      datasets: [
+        {
+          type: 'line',
+          label: 'Gross Revenue (₹)',
+          data: trendsData.revenue_data && trendsData.revenue_data.length > 0 ? trendsData.revenue_data : [0],
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          fill: true,
+          tension: 0.35,
+          yAxisID: 'y1',
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          borderWidth: 2.5
+        },
+        {
+          type: 'bar',
+          label: 'Bookings Volume',
+          data: trendsData.bookings_data && trendsData.bookings_data.length > 0 ? trendsData.bookings_data : [0],
+          backgroundColor: 'rgba(59, 130, 246, 0.65)',
+          borderRadius: 4,
+          yAxisID: 'y2',
+          barPercentage: 0.5
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        y1: {
+          type: 'linear',
+          position: 'left',
+          ticks: { callback: value => '₹' + value.toLocaleString() },
+          grid: { color: '#f1f5f9' }
+        },
+        y2: {
+          type: 'linear',
+          position: 'right',
+          grid: { drawOnChartArea: false },
+          ticks: { stepSize: 1 }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // 2. Peak Booking Hours Chart (24-Hour Distribution)
+  const ctxPeak = document.getElementById('peakHoursChart').getContext('2d');
+  new Chart(ctxPeak, {
+    type: 'bar',
+    data: {
+      labels: peakHoursData.labels,
+      datasets: [{
+        label: 'Bookings',
+        data: peakHoursData.counts,
+        backgroundColor: peakHoursData.counts.map((val, idx) => {
+          return (idx >= 18 && idx <= 22) ? '#ef4444' : 'rgba(100, 116, 139, 0.45)';
+        }),
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: function(items) { return 'Hour: ' + items[0].label; },
+            label: function(item) { return item.raw + ' Bookings Confirmed'; }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            callback: function(val, idx) {
+              return (idx % 3 === 0) ? this.getLabelForValue(val) : '';
+            }
+          },
+          grid: { display: false }
+        },
+        y: { grid: { color: '#f1f5f9' } }
+      }
+    }
+  });
+
+  // 3. Most Booked Movies (Horizontal Bar Chart)
+  const ctxMovies = document.getElementById('moviesChart').getContext('2d');
+  new Chart(ctxMovies, {
+    type: 'bar',
+    data: {
+      labels: moviesData.labels && moviesData.labels.length > 0 ? moviesData.labels : ['No Data'],
+      datasets: [{
+        label: 'Tickets Booked',
+        data: moviesData.counts && moviesData.counts.length > 0 ? moviesData.counts : [0],
+        backgroundColor: '#e50914',
+        borderRadius: 4
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: '#f1f5f9' } },
+        y: { grid: { display: false } }
+      }
+    }
+  });
+
+  // 4. Top Performing Theaters by Revenue
+  const ctxTheaters = document.getElementById('theatersChart').getContext('2d');
+  new Chart(ctxTheaters, {
+    type: 'bar',
+    data: {
+      labels: theatersData.labels && theatersData.labels.length > 0 ? theatersData.labels.map(l => l.length > 18 ? l.substring(0, 16) + '..' : l) : ['No Data'],
+      datasets: [{
+        label: 'Gross Revenue (₹)',
+        data: theatersData.revenues && theatersData.revenues.length > 0 ? theatersData.revenues : [0],
+        backgroundColor: '#6366f1',
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: item => 'Revenue: ₹' + item.raw.toLocaleString()
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45 } },
+        y: {
+          ticks: { callback: v => '₹' + v.toLocaleString() },
+          grid: { color: '#f1f5f9' }
+        }
+      }
+    }
+  });
+
+  // 5. Booking & Payment Status Donut Chart
+  const ctxCancel = document.getElementById('cancellationsChart').getContext('2d');
+  new Chart(ctxCancel, {
+    type: 'doughnut',
+    data: {
+      labels: ['Confirmed Bookings', 'Cancelled Bookings', 'Refunded Transactions', 'Failed Attempts'],
+      datasets: [{
+        data: [
+          cancelData.confirmed || 0,
+          cancelData.cancelled || 0,
+          cancelData.refunded_txns || 0,
+          cancelData.failed_txns || 0
+        ],
+        backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#94a3b8'],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 14 } }
+      },
+      cutout: '68%'
+    }
+  });
+});
+</script>
+{% endblock %}

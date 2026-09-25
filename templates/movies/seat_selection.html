@@ -1,0 +1,1032 @@
+{% extends "users/basic.html" %}
+{% block title %}PickMyShow - Select Seats for {{ theaters.movie.name }}{% endblock %}
+
+{% block content %}
+<style>
+  /* Header & Banner Styles */
+  .seat-header-card {
+    background: linear-gradient(135deg, #1a1a24 0%, #111118 100%);
+    border-radius: 16px;
+    color: #fff;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.14);
+  }
+  .live-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background-color: #28a745;
+    margin-right: 5px;
+    vertical-align: middle;
+    animation: livePulse 1.8s infinite;
+  }
+  @keyframes livePulse {
+    0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+    70% { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(40, 167, 69, 0); }
+    100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+  }
+
+  /* Screen Projection Bar */
+  .seat-screen-bar {
+    width: 85%;
+    max-width: 520px;
+    margin: 15px auto 30px;
+    text-align: center;
+  }
+  .screen-curve {
+    height: 8px;
+    background: linear-gradient(90deg, transparent 0%, #e50914 20%, #ff6b6b 50%, #e50914 80%, transparent 100%);
+    border-radius: 50%;
+    box-shadow: 0 3px 15px rgba(229, 9, 20, 0.4);
+    margin-bottom: 8px;
+  }
+  .screen-text {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #888;
+  }
+
+  /* Grid & Seat Container */
+  .seat-grid-container {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px 20px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  }
+  .seat-scroll-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 10px 5px;
+  }
+  .seat-scroll-wrapper::-webkit-scrollbar {
+    height: 6px;
+  }
+  .seat-scroll-wrapper::-webkit-scrollbar-thumb {
+    background: #dee2e6;
+    border-radius: 4px;
+  }
+
+  /* 4 Distinct Seat Status Indicators */
+  .seat-item {
+    width: 38px;
+    height: 38px;
+    margin: 5px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    user-select: none;
+    position: relative;
+  }
+
+  /* State 1: Available (Green) */
+  .seat-item.available {
+    border: 1.5px solid #28a745;
+    background: #f8fff9;
+    color: #28a745;
+  }
+  .seat-item.available:hover {
+    background: #28a745;
+    color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3);
+  }
+
+  /* State 2: Selected by Current User (Red) */
+  .seat-item.selected {
+    background: #e50914 !important;
+    border-color: #e50914 !important;
+    color: #fff !important;
+    transform: scale(1.08);
+    box-shadow: 0 4px 10px rgba(229, 9, 20, 0.35);
+  }
+
+  /* State 3: Reserved / Held by Another User (< 2 min) (Amber/Yellow) */
+  .seat-item.reserved {
+    background: #fffbeb !important;
+    border: 1.5px solid #f59e0b !important;
+    color: #b45309 !important;
+    cursor: not-allowed !important;
+    opacity: 0.85;
+  }
+  .seat-item.reserved::after {
+    content: "⏱";
+    font-size: 0.65rem;
+    position: absolute;
+    top: -4px;
+    right: -3px;
+  }
+
+  /* State 3B: Reserved by Current User (Amber Pulse) */
+  .seat-item.reserved-by-you {
+    background: #fff3cd !important;
+    border: 2px solid #ffc107 !important;
+    color: #856404 !important;
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.6) !important;
+  }
+
+  /* State 4: Booked / Sold Out (Gray) */
+  .seat-item.sold {
+    background: #e9ecef !important;
+    border: 1.5px solid #dee2e6 !important;
+    color: #adb5bd !important;
+    cursor: not-allowed !important;
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+
+  /* Legend */
+  .seat-legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 6px 14px;
+  }
+  .legend-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    margin-right: 8px;
+  }
+
+  /* Timer & Summary Cards */
+  .timer-banner {
+    background: #fffcf0;
+    border: 1.5px dashed #f59e0b;
+    border-radius: 14px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    animation: fadeIn 0.3s ease;
+  }
+  .timer-badge {
+    font-family: monospace;
+    font-size: 1.25rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 8px;
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+    display: inline-block;
+  }
+  .timer-badge.urgent {
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+    border-color: #f87171 !important;
+    animation: urgentPulse 1s infinite;
+  }
+  @keyframes urgentPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .booking-summary-box {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 18px 24px;
+    border: 1px solid #e9ecef;
+  }
+
+  /* Mobile Responsive Tweaks */
+  @media (max-width: 576px) {
+    .seat-header-card {
+      padding: 18px;
+    }
+    .seat-item {
+      width: 34px;
+      height: 34px;
+      margin: 3px;
+      font-size: 0.72rem;
+    }
+    .seat-legend-item {
+      margin: 4px 8px;
+      font-size: 0.78rem;
+    }
+    .timer-banner {
+      padding: 12px 14px;
+    }
+    .timer-badge {
+      font-size: 1.05rem;
+      padding: 4px 10px;
+    }
+  }
+</style>
+
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-9 col-md-11">
+
+      <!-- Theater & Movie Header Card with Live Status Badge -->
+      <div class="seat-header-card">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+          <div>
+            <div class="d-flex align-items-center flex-wrap mb-2">
+              <span class="badge badge-danger px-2 py-1 mr-2 font-weight-bold">{{ theaters.movie.genre }} &bull; {{ theaters.movie.language }}</span>
+              <span class="badge badge-dark px-2 py-1 font-weight-bold border border-secondary text-white" id="liveSyncBadge">
+                <span class="live-dot"></span> Live Availability Active
+              </span>
+            </div>
+            <h3 class="font-weight-bold mb-1 text-white">{{ theaters.movie.name }}</h3>
+            <p class="text-muted small mb-0">
+              <i class="fas fa-map-marker-alt text-danger mr-1"></i> {{ theaters.name }} ({{ theaters.city }})
+              &bull; <i class="fas fa-desktop text-info mr-1"></i> {{ theaters.screen_name }}
+              &bull; <i class="far fa-clock text-warning ml-2 mr-1"></i> {{ theaters.time|date:"D, d M - h:i A" }}
+            </p>
+          </div>
+          <div class="mt-3 mt-md-0 text-md-right">
+            <span class="text-muted small d-block">Ticket Price</span>
+            <span class="h4 font-weight-bold text-success mb-0">&#8377;{{ theaters.price }}</span>
+            <small class="text-muted">/ seat</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2-Minute Reservation Countdown Timer Banner (Hidden until hold is active) -->
+      <div id="reservationTimerBanner" class="timer-banner d-none">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+          <div class="d-flex align-items-center mb-2 mb-sm-0">
+            <i class="fas fa-stopwatch text-warning fa-2x mr-3"></i>
+            <div>
+              <h6 class="font-weight-bold text-dark mb-0">Seats Temporarily Reserved (2-Min Hold)</h6>
+              <small class="text-muted">Seats are locked for you. Complete payment before the timer releases them:</small>
+            </div>
+          </div>
+          <div class="d-flex align-items-center mt-2 mt-sm-0">
+            <div class="timer-badge mr-3" id="timerBadge">
+              <span id="timerText">02:00</span>
+            </div>
+            <button type="button" class="btn btn-outline-secondary btn-sm font-weight-bold" id="modifySeatsBtn" onclick="enableSeatModification()" title="Modify your seat selection">
+              <i class="fas fa-edit mr-1"></i> Modify Seats
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seat Grid Card -->
+      <div class="seat-grid-container">
+        <div class="seat-screen-bar">
+          <div class="screen-curve"></div>
+          <span class="screen-text"><i class="fas fa-tv mr-1"></i> Screen This Way</span>
+        </div>
+
+        <form method="POST" id="seatBookingForm">
+          {% csrf_token %}
+
+          <!-- Interactive Seats Grid with Horizontal Overflow Wrapper for Mobile -->
+          <div class="seat-scroll-wrapper text-center">
+            <div class="d-inline-block text-center mb-4" id="seatsWrapper" style="min-width: 280px; max-width: 720px;">
+              {% if seat_rows %}
+                {% for row_label, row_seats in seat_rows.items %}
+                <div class="d-flex align-items-center justify-content-center mb-2 seat-row-group">
+                  <span class="seat-row-label font-weight-bold text-muted mr-3 text-right" style="width: 28px; font-size: 0.85rem;">{{ row_label }}</span>
+                  <div class="d-flex flex-wrap justify-content-center">
+                    {% for seat in row_seats %}
+                    <div class="seat-item {% if seat.is_booked %}sold{% elif seat.is_currently_reserved %}{% if user.is_authenticated and seat.reserved_by_id == user.id %}reserved-by-you selected{% else %}reserved{% endif %}{% else %}available{% endif %}"
+                         id="seat_elem_{{ seat.id }}"
+                         data-seat-id="{{ seat.id }}"
+                         data-seat-number="{{ seat.seat_number }}"
+                         data-status="{% if seat.is_booked %}booked{% elif seat.is_currently_reserved %}{% if user.is_authenticated and seat.reserved_by_id == user.id %}reserved_by_you{% else %}reserved{% endif %}{% else %}available{% endif %}"
+                         {% if not seat.is_booked and not seat.is_currently_reserved or user.is_authenticated and seat.reserved_by_id == user.id %}onclick="toggleSeat(this, '{{ seat.id }}')"{% endif %}
+                         title="Seat {{ seat.seat_number }}{% if seat.is_booked %} (Booked){% elif seat.is_currently_reserved %}{% if user.is_authenticated and seat.reserved_by_id == user.id %} (Reserved by You){% else %} (Reserved - Held by another){% endif %}{% else %} (Available){% endif %}">
+                      {{ seat.seat_number }}
+                      <input type="checkbox" name="seats" value="{{ seat.id }}" id="seat_input_{{ seat.id }}" class="d-none"
+                             {% if user.is_authenticated and seat.reserved_by_id == user.id %}checked{% endif %} />
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+                {% endfor %}
+              {% else %}
+                <div class="d-inline-flex justify-content-center flex-wrap mb-4">
+                  {% for seat in seats %}
+                  <div class="seat-item {% if seat.is_booked %}sold{% elif seat.is_currently_reserved %}{% if user.is_authenticated and seat.reserved_by_id == user.id %}reserved-by-you selected{% else %}reserved{% endif %}{% else %}available{% endif %}"
+                       id="seat_elem_{{ seat.id }}"
+                       data-seat-id="{{ seat.id }}"
+                       data-seat-number="{{ seat.seat_number }}"
+                       data-status="{% if seat.is_booked %}booked{% elif seat.is_currently_reserved %}{% if user.is_authenticated and seat.reserved_by_id == user.id %}reserved_by_you{% else %}reserved{% endif %}{% else %}available{% endif %}"
+                       {% if not seat.is_booked and not seat.is_currently_reserved or user.is_authenticated and seat.reserved_by_id == user.id %}onclick="toggleSeat(this, '{{ seat.id }}')"{% endif %}
+                       title="Seat {{ seat.seat_number }}{% if seat.is_booked %} (Booked){% elif seat.is_currently_reserved %}{% if user.is_authenticated and seat.reserved_by_id == user.id %} (Reserved by You){% else %} (Reserved - Held by another){% endif %}{% else %} (Available){% endif %}">
+                    {{ seat.seat_number }}
+                    <input type="checkbox" name="seats" value="{{ seat.id }}" id="seat_input_{{ seat.id }}" class="d-none"
+                           {% if user.is_authenticated and seat.reserved_by_id == user.id %}checked{% endif %} />
+                  </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Clear 4-State Legend -->
+          <div class="d-flex justify-content-center flex-wrap mb-4 py-2 border-top border-bottom">
+            <div class="seat-legend-item">
+              <div class="legend-box" style="background:#f8fff9; border:1.5px solid #28a745;"></div>
+              <span>Available</span>
+            </div>
+            <div class="seat-legend-item">
+              <div class="legend-box" style="background:#e50914; border:1.5px solid #e50914;"></div>
+              <span>Selected</span>
+            </div>
+            <div class="seat-legend-item">
+              <div class="legend-box" style="background:#fffbeb; border:1.5px solid #f59e0b;"></div>
+              <span class="text-warning font-weight-bold">Reserved (Hold)</span>
+            </div>
+            <div class="seat-legend-item">
+              <div class="legend-box" style="background:#e9ecef; border:1.5px solid #dee2e6;"></div>
+              <span class="text-muted">Booked / Sold Out</span>
+            </div>
+          </div>
+
+          <!-- Live Price Summary -->
+          <div class="booking-summary-box mb-4 d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+              <span class="text-muted small d-block">Selected Seats:</span>
+              <strong id="selectedSeatsList" class="text-dark">None selected</strong>
+            </div>
+            <div class="text-right mt-2 mt-sm-0">
+              <span class="text-muted small d-block">Total Amount (INR):</span>
+              <span class="h4 font-weight-bold text-danger mb-0" id="totalAmount">&#8377;0.00</span>
+            </div>
+          </div>
+
+          <!-- Alert Container for Dynamic Messages -->
+          <div id="paymentAlert" class="alert d-none mb-3 font-weight-bold" role="alert"></div>
+
+          <!-- CTA Buttons -->
+          <div class="text-center">
+            <a href="{% url 'theater_list' theaters.movie.id %}" class="btn btn-outline-secondary px-4 py-2 mr-2 font-weight-bold" onclick="handleNavigationAway(event)">
+              <i class="fas fa-arrow-left mr-1"></i> Back to Shows
+            </a>
+            <button type="button" class="btn btn-danger btn-lg px-5 font-weight-bold shadow-sm" id="bookBtn" onclick="initiateCheckout()" disabled>
+              <i class="fas fa-lock mr-2"></i> Pay Online
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Secure Payment Gateway Modal (Razorpay Simulator Fallback) -->
+<div class="modal fade" id="simulatedPaymentModal" tabindex="-1" role="dialog" aria-labelledby="simModalTitle" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content border-0 shadow-lg" style="border-radius:16px; overflow:hidden;">
+      <div class="modal-header bg-dark text-white p-4">
+        <div>
+          <h5 class="modal-title font-weight-bold mb-1" id="simModalTitle">
+            <i class="fas fa-credit-card text-danger mr-2"></i> PickMyShow Secure Payment
+          </h5>
+          <small class="text-muted">Verified 256-bit SSL Encryption</small>
+        </div>
+        <button type="button" class="close text-white" onclick="dismissPaymentModal()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="text-center mb-3">
+          <h3 class="font-weight-bold text-dark mb-0" id="modalPayAmount">&#8377;0.00</h3>
+          <p class="text-muted small mb-0" id="modalPayDetails"></p>
+        </div>
+
+        <!-- In-Modal Reservation Countdown Display -->
+        <div class="alert alert-warning py-2 px-3 text-center mb-3 font-weight-bold small rounded-pill">
+          <i class="fas fa-clock mr-1"></i> Seat reservation expires in: <span id="modalCountdown" class="text-danger font-weight-bold">02:00</span>
+        </div>
+
+        <div class="card bg-light border-0 p-3 mb-3 rounded-lg">
+          <div class="d-flex justify-content-between small text-muted mb-1">
+            <span>Movie:</span> <strong class="text-dark">{{ theaters.movie.name }}</strong>
+          </div>
+          <div class="d-flex justify-content-between small text-muted mb-1">
+            <span>Auditorium:</span> <strong class="text-dark">{{ theaters.name }} ({{ theaters.screen_name }})</strong>
+          </div>
+          <div class="d-flex justify-content-between small text-muted mb-1">
+            <span>Selected Seats:</span> <strong class="text-danger" id="modalSeats"></strong>
+          </div>
+          <div class="d-flex justify-content-between small text-muted">
+            <span>Order Reference:</span> <code class="text-primary font-weight-bold" id="modalOrderId"></code>
+          </div>
+        </div>
+
+        <div class="form-group mb-3">
+          <label class="font-weight-bold small text-muted">Select Payment Method:</label>
+          <select class="form-control font-weight-bold" id="simPaymentMethod">
+            <option value="UPI (GPay / PhonePe / Paytm)">UPI (Google Pay / PhonePe / Paytm)</option>
+            <option value="Debit / Credit Card">Visa / Mastercard / RuPay Card</option>
+            <option value="Net Banking">Net Banking (SBI / HDFC / ICICI / Axis)</option>
+            <option value="Cinema Wallet">PickMyShow Wallet</option>
+          </select>
+        </div>
+
+        <div class="d-flex flex-column">
+          <button type="button" class="btn btn-success btn-block py-2 font-weight-bold mb-2 shadow-sm" id="btnPaySuccess" onclick="completeSimulatedPayment(true)">
+            <i class="fas fa-lock mr-2"></i> Pay Securely
+          </button>
+          <button type="button" class="btn btn-link text-muted btn-sm" onclick="dismissPaymentModal()">
+            <i class="fas fa-ban mr-1"></i> Cancel & Release Reserved Seats
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Razorpay Official Checkout SDK -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+  const seatPrice = parseFloat("{{ theaters.price }}") || 200;
+  const theaterId = "{{ theaters.id }}";
+  let selectedSeats = [];
+  let currentOrderPayload = null;
+  let countdownInterval = null;
+  let remainingSeconds = 120;
+  let pollingInterval = null;
+  let isModifying = false;
+  let lastETagVersion = null;
+  let reservationToken = sessionStorage.getItem('pms_res_token_' + theaterId) || null;
+
+  // Preselected seat IDs (e.g. from payment retry or existing reservation)
+  const preselectedIds = {{ preselected_ids|default:"[]"|safe }};
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize any preselected seats from server or context
+    if (preselectedIds && preselectedIds.length > 0) {
+      preselectedIds.forEach(id => {
+        const elem = document.querySelector(`.seat-item[data-seat-id="${id}"]`);
+        if (elem && !elem.classList.contains('sold') && !elem.classList.contains('reserved')) {
+          toggleSeat(elem, id.toString(), false);
+        }
+      });
+    }
+
+    // Check existing reservations in DOM
+    document.querySelectorAll('.seat-item.reserved-by-you').forEach(elem => {
+      const sid = elem.getAttribute('data-seat-id');
+      const num = elem.getAttribute('data-seat-number');
+      if (!selectedSeats.some(s => s.id === sid)) {
+        selectedSeats.push({ id: sid, number: num });
+      }
+    });
+
+    updateSummary();
+
+    // Start live availability polling (every 2.5 seconds)
+    startLiveAvailabilityPolling();
+  });
+
+  function showAlert(message, type) {
+    const alertBox = document.getElementById('paymentAlert');
+    alertBox.className = `alert alert-${type} font-weight-bold`;
+    alertBox.innerHTML = message;
+    alertBox.classList.remove('d-none');
+    alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function hideAlert() {
+    const alertBox = document.getElementById('paymentAlert');
+    alertBox.classList.add('d-none');
+  }
+
+  function toggleSeat(elem, seatId, triggerModify = true) {
+    // If seat is sold or reserved by another user, reject interaction
+    if (elem.classList.contains('sold') || (elem.classList.contains('reserved') && !elem.classList.contains('reserved-by-you'))) {
+      return;
+    }
+
+    const checkbox = document.getElementById('seat_input_' + seatId);
+    const seatNumber = elem.getAttribute('data-seat-number');
+
+    if (elem.classList.contains('selected')) {
+      elem.classList.remove('selected');
+      elem.classList.remove('reserved-by-you');
+      elem.classList.add('available');
+      if (checkbox) checkbox.checked = false;
+      selectedSeats = selectedSeats.filter(s => s.id !== seatId);
+    } else {
+      elem.classList.add('selected');
+      elem.classList.remove('available');
+      if (checkbox) checkbox.checked = true;
+      selectedSeats.push({ id: seatId, number: seatNumber });
+    }
+
+    hideAlert();
+    updateSummary();
+
+    // If a hold is active and user modifies their seats, sync with server
+    if (triggerModify && isHoldActive()) {
+      syncModifiedSeatsToServer();
+    }
+  }
+
+  function updateSummary() {
+    const listEl = document.getElementById('selectedSeatsList');
+    const totalEl = document.getElementById('totalAmount');
+    const btnEl = document.getElementById('bookBtn');
+
+    if (selectedSeats.length === 0) {
+      listEl.textContent = 'None selected';
+      totalEl.innerHTML = '&#8377;0.00';
+      if (btnEl) btnEl.disabled = true;
+      // If all unselected, stop timer banner
+      if (!isModifying) {
+        stopCountdown();
+      }
+    } else {
+      listEl.textContent = selectedSeats.map(s => s.number).join(', ') + ' (' + selectedSeats.length + ' seat' + (selectedSeats.length > 1 ? 's' : '') + ')';
+      const total = (selectedSeats.length * seatPrice).toFixed(2);
+      totalEl.innerHTML = '&#8377;' + total;
+      if (btnEl) btnEl.disabled = false;
+    }
+  }
+
+  function getCsrfToken() {
+    const tokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
+    return tokenInput ? tokenInput.value : '';
+  }
+
+  function isHoldActive() {
+    return !document.getElementById('reservationTimerBanner').classList.contains('d-none');
+  }
+
+  // --- Countdown Timer System (2-Minute Auto-Release Window) ---
+  function startCountdown(seconds) {
+    clearInterval(countdownInterval);
+    remainingSeconds = seconds || 120;
+
+    const banner = document.getElementById('reservationTimerBanner');
+    banner.classList.remove('d-none');
+    updateTimerDisplay();
+
+    countdownInterval = setInterval(function() {
+      remainingSeconds--;
+      updateTimerDisplay();
+
+      if (remainingSeconds <= 0) {
+        clearInterval(countdownInterval);
+        handleHoldExpired();
+      }
+    }, 1000);
+  }
+
+  function stopCountdown() {
+    clearInterval(countdownInterval);
+    const banner = document.getElementById('reservationTimerBanner');
+    if (banner) banner.classList.add('d-none');
+  }
+
+  function updateTimerDisplay() {
+    const minutes = Math.floor(remainingSeconds / 60);
+    const secs = remainingSeconds % 60;
+    const formatted = `${minutes < 10 ? '0' : ''}${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+
+    const textEl = document.getElementById('timerText');
+    const badgeEl = document.getElementById('timerBadge');
+    const modalCd = document.getElementById('modalCountdown');
+
+    if (textEl) textEl.textContent = formatted;
+    if (modalCd) modalCd.textContent = formatted;
+
+    if (remainingSeconds <= 30) {
+      if (badgeEl) badgeEl.classList.add('urgent');
+    } else {
+      if (badgeEl) badgeEl.classList.remove('urgent');
+    }
+  }
+
+  function handleHoldExpired() {
+    stopCountdown();
+    $('#simulatedPaymentModal').modal('hide');
+
+    showAlert(
+      '<i class="fas fa-exclamation-triangle mr-2"></i> Your 2-minute seat reservation has expired. The seats have been automatically released for other users.',
+      'warning'
+    );
+
+    // Release on server with session token
+    fetch("{% url 'release_reservation_api' theaters.id %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCsrfToken(),
+      },
+      body: JSON.stringify({ reservation_token: reservationToken })
+    }).finally(() => {
+      sessionStorage.removeItem('pms_res_token_' + theaterId);
+      reservationToken = null;
+      lastETagVersion = null;
+      // Deselect all seats and trigger immediate availability poll
+      selectedSeats = [];
+      document.querySelectorAll('.seat-item.selected').forEach(el => {
+        el.classList.remove('selected', 'reserved-by-you');
+        el.classList.add('available');
+      });
+      document.querySelectorAll('input[name="seats"]:checked').forEach(el => el.checked = false);
+      updateSummary();
+      pollSeatAvailability();
+    });
+  }
+
+  // --- Seat Modification Before Payment ---
+  function enableSeatModification() {
+    isModifying = true;
+    showAlert(
+      '<i class="fas fa-info-circle mr-2"></i> Modification mode enabled: Tap seats on the grid to add or remove seats. Changes will be updated automatically.',
+      'info'
+    );
+  }
+
+  function syncModifiedSeatsToServer() {
+    if (selectedSeats.length === 0) return;
+
+    const seatIds = selectedSeats.map(s => s.id);
+    fetch("{% url 'modify_reservation_api' theaters.id %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCsrfToken(),
+      },
+      body: JSON.stringify({
+        seats: seatIds,
+        reservation_token: reservationToken
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        if (data.reservation_token) {
+          reservationToken = data.reservation_token;
+          sessionStorage.setItem('pms_res_token_' + theaterId, reservationToken);
+        }
+        // Reset countdown timer to renewed 120s hold
+        startCountdown(data.remaining_seconds || 120);
+        showAlert('<i class="fas fa-check-circle mr-1"></i> Seat selection updated and hold extended.', 'success');
+      } else {
+        showAlert(`<i class="fas fa-times-circle mr-1"></i> ${data.error}`, 'danger');
+      }
+    })
+    .catch(() => {
+      showAlert('Network error syncing modified seats.', 'warning');
+    });
+  }
+
+  // --- Live Availability Polling Engine ---
+  function startLiveAvailabilityPolling() {
+    clearInterval(pollingInterval);
+    pollingInterval = setInterval(pollSeatAvailability, 2500);
+  }
+
+  function pollSeatAvailability() {
+    let url = "{% url 'seat_availability_api' theaters.id %}";
+    const params = [];
+    if (reservationToken) {
+      params.push('token=' + encodeURIComponent(reservationToken));
+    }
+    if (lastETagVersion) {
+      params.push('v=' + encodeURIComponent(lastETagVersion));
+    }
+    if (params.length > 0) {
+      url += '?' + params.join('&');
+    }
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) return;
+        if (data.modified === false) {
+          // No seat changes on server, skip DOM re-render
+          return;
+        }
+        if (data.version) {
+          lastETagVersion = data.version;
+        }
+        if (data.reservation_token) {
+          reservationToken = data.reservation_token;
+          sessionStorage.setItem('pms_res_token_' + theaterId, reservationToken);
+        }
+        if (!data.seats) return;
+
+        data.seats.forEach(seat => {
+          const elem = document.getElementById('seat_elem_' + seat.id);
+          if (!elem) return;
+
+          const currentStatus = elem.getAttribute('data-status');
+          const newStatus = seat.status;
+
+          // If another user took a seat that this user currently had selected in browser
+          if (elem.classList.contains('selected') && !elem.classList.contains('reserved-by-you') && (newStatus === 'reserved' || newStatus === 'booked')) {
+            elem.classList.remove('selected');
+            selectedSeats = selectedSeats.filter(s => s.id !== seat.id.toString());
+            const chk = document.getElementById('seat_input_' + seat.id);
+            if (chk) chk.checked = false;
+            showAlert(`<i class="fas fa-exclamation-triangle mr-1"></i> Seat ${seat.seat_number} was just reserved by another user. Your selection has been updated.`, 'warning');
+            updateSummary();
+          }
+
+          // Update classes and interactions according to status
+          elem.setAttribute('data-status', newStatus);
+
+          if (newStatus === 'booked') {
+            elem.className = 'seat-item sold';
+            elem.title = `Seat ${seat.seat_number} (Booked)`;
+            elem.onclick = null;
+          } else if (newStatus === 'reserved') {
+            elem.className = 'seat-item reserved';
+            elem.title = `Seat ${seat.seat_number} (Reserved - ${seat.remaining_seconds}s left)`;
+            elem.onclick = null;
+          } else if (newStatus === 'reserved_by_you') {
+            elem.className = 'seat-item reserved-by-you selected';
+            elem.title = `Seat ${seat.seat_number} (Reserved by You - ${seat.remaining_seconds}s left)`;
+            elem.onclick = function() { toggleSeat(elem, seat.id.toString()); };
+          } else if (newStatus === 'available') {
+            if (!elem.classList.contains('selected')) {
+              elem.className = 'seat-item available';
+              elem.title = `Seat ${seat.seat_number} (Available)`;
+            }
+            elem.onclick = function() { toggleSeat(elem, seat.id.toString()); };
+          }
+        });
+
+        // Sync active reservation timer if server reports active hold
+        if (data.user_reservation && data.user_reservation.has_active_reservation && !countdownInterval) {
+          startCountdown(data.user_reservation.remaining_seconds);
+        }
+      })
+      .catch(() => {
+        // Silently skip transient polling glitches
+      });
+  }
+
+  // --- Step 1: Initiate Payment and Lock Seats ---
+  function initiateCheckout() {
+    if (selectedSeats.length === 0) return;
+
+    const btn = document.getElementById('bookBtn');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Locking Seats...';
+    }
+
+    const seatIds = selectedSeats.map(s => s.id);
+
+    fetch("{% url 'initiate_payment' theaters.id %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCsrfToken(),
+      },
+      body: JSON.stringify({
+        seats: seatIds,
+        reservation_token: reservationToken
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-lock mr-2"></i> Pay Online';
+      }
+
+      if (!data.success) {
+        showAlert(`<i class="fas fa-exclamation-triangle mr-1"></i> ${data.error}`, 'danger');
+        pollSeatAvailability();
+        return;
+      }
+
+      currentOrderPayload = data;
+      if (data.reservation_token) {
+        reservationToken = data.reservation_token;
+        sessionStorage.setItem('pms_res_token_' + theaterId, reservationToken);
+      }
+
+      // Start 2-Minute Reservation Countdown Timer
+      startCountdown(120);
+
+      // Trigger payment modal
+      const isRazorpaySdkLoaded = typeof Razorpay !== 'undefined';
+      const isRealTestKey = data.key_id && data.key_id.startsWith('rzp_test_') && data.key_id !== 'rzp_test_pms_free_mock';
+
+      if (isRazorpaySdkLoaded && isRealTestKey) {
+        openRazorpayOfficialModal(data);
+      } else {
+        openSimulatedPaymentModal(data);
+      }
+    })
+    .catch(err => {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-lock mr-2"></i> Pay Online';
+      }
+      showAlert('<i class="fas fa-exclamation-circle mr-1"></i> Network error initiating reservation. Please try again.', 'danger');
+    });
+  }
+
+  // Razorpay Official Modal Handler
+  function openRazorpayOfficialModal(data) {
+    const options = {
+      key: data.key_id,
+      amount: data.amount,
+      currency: data.currency,
+      name: "PickMyShow",
+      description: `Movie Tickets: ${data.movie_name} (${data.seat_numbers})`,
+      order_id: data.order_id,
+      handler: function (response) {
+        verifyPaymentOnServer({
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature,
+          payment_method: 'Razorpay Online'
+        });
+      },
+      prefill: {
+        name: data.user_name,
+        email: data.user_email,
+        contact: "9876543210"
+      },
+      theme: {
+        color: "#e50914"
+      },
+      modal: {
+        ondismiss: function () {
+          cancelPaymentOnServer(data.order_id, "Razorpay checkout modal closed by user.");
+        }
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', function (response) {
+      const err = response.error || {};
+      const errCode = err.code || 'PAYMENT_FAILED';
+      const errDesc = err.description || 'Payment was declined or failed during checkout.';
+      const reason = err.reason || '';
+      const fullDesc = reason ? `${errDesc} (${reason})` : errDesc;
+
+      fetch("{% url 'cancel_payment' theaters.id %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCsrfToken(),
+        },
+        body: JSON.stringify({
+          order_id: data.order_id,
+          reason: `Payment failed: ${fullDesc}`
+        })
+      }).finally(() => {
+        window.location.href = `/movies/payment/failed/${data.transaction_id}/?error_code=${encodeURIComponent(errCode)}&error_description=${encodeURIComponent(fullDesc)}`;
+      });
+    });
+    rzp.open();
+  }
+
+  // Free Sandbox Interactive Modal
+  function openSimulatedPaymentModal(data) {
+    document.getElementById('modalPayAmount').innerHTML = `&#8377;${(data.amount / 100).toFixed(2)}`;
+    document.getElementById('modalPayDetails').innerText = `${data.movie_name} • ${data.show_time}`;
+    document.getElementById('modalSeats').innerText = data.seat_numbers;
+    document.getElementById('modalOrderId').innerText = data.order_id;
+    $('#simulatedPaymentModal').modal('show');
+  }
+
+  function dismissPaymentModal() {
+    $('#simulatedPaymentModal').modal('hide');
+    if (currentOrderPayload && currentOrderPayload.order_id) {
+      cancelPaymentOnServer(currentOrderPayload.order_id, "User dismissed payment modal.");
+    }
+  }
+
+  function completeSimulatedPayment(isSuccess) {
+    if (!currentOrderPayload) return;
+
+    const btnSuccess = document.getElementById('btnPaySuccess');
+    btnSuccess.disabled = true;
+
+    const method = document.getElementById('simPaymentMethod').value;
+    const orderId = currentOrderPayload.order_id;
+    const paymentId = 'pay_' + Math.random().toString(36).substring(2, 14);
+
+    if (isSuccess) {
+      fetch("{% url 'verify_payment' theaters.id %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCsrfToken(),
+        },
+        body: JSON.stringify({
+          razorpay_order_id: orderId,
+          razorpay_payment_id: paymentId,
+          razorpay_signature: "simulated_valid_hmac_sha256",
+          payment_method: method
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        $('#simulatedPaymentModal').modal('hide');
+        stopCountdown();
+        if (data.success && data.redirect_url) {
+          sessionStorage.removeItem('pms_res_token_' + theaterId);
+          reservationToken = null;
+          lastETagVersion = null;
+          window.location.href = data.redirect_url;
+        } else {
+          showAlert(data.error || 'Payment verification failed.', 'danger');
+        }
+      })
+      .catch(err => {
+        $('#simulatedPaymentModal').modal('hide');
+        showAlert('Verification request failed. Please check your transaction history.', 'danger');
+      });
+    }
+  }
+
+  function verifyPaymentOnServer(payload) {
+    showAlert('<i class="fas fa-spinner fa-spin mr-2"></i> Verifying payment signature on server...', 'info');
+
+    fetch("{% url 'verify_payment' theaters.id %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCsrfToken(),
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+      stopCountdown();
+      if (data.success && data.redirect_url) {
+        sessionStorage.removeItem('pms_res_token_' + theaterId);
+        reservationToken = null;
+        lastETagVersion = null;
+        window.location.href = data.redirect_url;
+      } else if (data.redirect_url) {
+        window.location.href = data.redirect_url;
+      } else {
+        showAlert(`<i class="fas fa-times-circle mr-1"></i> ${data.error || 'Payment verification failed.'}`, 'danger');
+      }
+    })
+    .catch(err => {
+      showAlert('Payment verification error. Please check your profile.', 'danger');
+    });
+  }
+
+  function cancelPaymentOnServer(orderId, reason) {
+    stopCountdown();
+    fetch("{% url 'cancel_payment' theaters.id %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCsrfToken(),
+      },
+      body: JSON.stringify({
+        order_id: orderId,
+        reason: reason,
+        reservation_token: reservationToken
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      sessionStorage.removeItem('pms_res_token_' + theaterId);
+      reservationToken = null;
+      lastETagVersion = null;
+      showAlert('<i class="fas fa-info-circle mr-1"></i> Payment was cancelled. Your reserved seats have been released.', 'warning');
+      selectedSeats = [];
+      document.querySelectorAll('.seat-item.selected').forEach(el => {
+        el.classList.remove('selected', 'reserved-by-you');
+        el.classList.add('available');
+      });
+      document.querySelectorAll('input[name="seats"]:checked').forEach(el => el.checked = false);
+      updateSummary();
+      pollSeatAvailability();
+    });
+  }
+
+  function handleNavigationAway(e) {
+    if (isHoldActive()) {
+      // Proactively release held seats if user clicks back
+      fetch("{% url 'release_reservation_api' theaters.id %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCsrfToken(),
+        },
+        body: JSON.stringify({ reservation_token: reservationToken })
+      });
+      sessionStorage.removeItem('pms_res_token_' + theaterId);
+      reservationToken = null;
+    }
+  }
+</script>
+{% endblock %}

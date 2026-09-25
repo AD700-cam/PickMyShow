@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}PickMyShow - Book Movie Tickets Online{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- jQuery & Bootstrap Bundle (with built-in Popper) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+      :root {
+        --primary-brand: #e50914;
+        --primary-brand-dark: #b80710;
+        --secondary-dark: #141414;
+        --card-bg: #ffffff;
+        --text-main: #212529;
+        --text-muted: #6c757d;
+        --bg-light: #f8f9fa;
+        --border-color: #e9ecef;
+      }
+      body {
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #f4f6f9;
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .main-content {
+        flex: 1 0 auto;
+      }
+      /* Modern Navigation */
+      .navbar-custom {
+        background-color: #1a1a24;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        padding: 12px 0;
+      }
+      .navbar-brand {
+        font-weight: 800;
+        font-size: 1.4rem;
+        color: #fff !important;
+        letter-spacing: -0.5px;
+        display: flex;
+        align-items: center;
+      }
+      .brand-highlight {
+        color: var(--primary-brand);
+      }
+      .navbar-nav .nav-link {
+        color: #e0e0e0 !important;
+        font-weight: 500;
+        padding: 8px 14px !important;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+      }
+      .navbar-nav .nav-link:hover, .navbar-nav .nav-link.active {
+        color: #ffffff !important;
+        background-color: rgba(255, 255, 255, 0.08);
+      }
+      .btn-brand {
+        background-color: var(--primary-brand);
+        color: white !important;
+        font-weight: 600;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 18px;
+        transition: background-color 0.2s, transform 0.2s;
+      }
+      .btn-brand:hover {
+        background-color: var(--primary-brand-dark);
+        transform: translateY(-1px);
+      }
+      .city-dropdown-btn {
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff !important;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        padding: 5px 14px;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+        text-decoration: none !important;
+      }
+      .city-dropdown-btn:hover, .city-dropdown-btn:focus {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.45);
+        color: #fff !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+      }
+      .city-dropdown-menu {
+        min-width: 280px;
+        border-radius: 12px;
+        padding: 8px 0;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
+        z-index: 1060;
+      }
+      .city-item-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 16px;
+        color: #2b2d42;
+        text-decoration: none !important;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: background-color 0.15s ease, color 0.15s ease;
+      }
+      .city-item-link:hover {
+        background-color: #f8f9fa;
+        color: var(--primary-brand);
+      }
+      .city-item-link.active {
+        background-color: rgba(229, 9, 20, 0.08);
+        color: var(--primary-brand);
+        font-weight: 700;
+      }
+      .city-modal-card {
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 16px 12px;
+        text-align: center;
+        transition: all 0.2s ease;
+        text-decoration: none !important;
+        display: block;
+        color: #2b2d42;
+        background: #ffffff;
+      }
+      .city-modal-card:hover {
+        border-color: var(--primary-brand);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(229, 9, 20, 0.18);
+        color: var(--primary-brand);
+      }
+      .city-modal-card.active {
+        border-color: var(--primary-brand);
+        background: rgba(229, 9, 20, 0.06);
+        color: var(--primary-brand);
+        font-weight: 700;
+      }
+      .city-modal-card .city-icon {
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+        display: block;
+        color: var(--primary-brand);
+      }
+      /* Footer */
+      .footer-custom {
+        background-color: #111118;
+        color: #9aa0a6;
+        padding: 50px 0 25px;
+        margin-top: auto;
+        font-size: 0.95rem;
+      }
+      .footer-custom h5 {
+        color: #ffffff;
+        font-weight: 700;
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+      }
+      .footer-custom a {
+        color: #9aa0a6;
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .footer-custom a:hover {
+        color: var(--primary-brand);
+      }
+      .footer-social a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+        color: #fff;
+        margin-right: 10px;
+        transition: all 0.3s;
+      }
+      .footer-social a:hover {
+        background: var(--primary-brand);
+        color: #fff;
+        transform: translateY(-3px);
+      }
+      .badge-brand {
+        background-color: var(--primary-brand);
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+      <div class="container">
+        <a class="navbar-brand" href="/">
+          <i class="fas fa-ticket-alt brand-highlight mr-2"></i>Pick<span class="brand-highlight">My</span>Show
+        </a>
+
+        <!-- City Selector Dropdown in Navbar -->
+        <div class="dropdown d-inline-block ml-2 ml-md-3" id="cityDropdownContainer">
+          <button
+            class="btn city-dropdown-btn dropdown-toggle"
+            type="button"
+            id="cityDropdown"
+            data-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <i class="fas fa-map-marker-alt text-danger mr-1"></i>
+            <span id="currentCityLabel">
+              {% if selected_city %}{{ selected_city }}{% elif request.GET.city %}{{ request.GET.city }}{% else %}Explore Cities{% endif %}
+            </span>
+          </button>
+          <div class="dropdown-menu city-dropdown-menu shadow-lg" id="cityDropdownMenu" aria-labelledby="cityDropdown">
+            <div class="px-3 py-2 border-bottom text-muted small font-weight-bold d-flex justify-content-between align-items-center">
+              <span><i class="fas fa-city mr-1 text-danger"></i> Select Your City</span>
+              <a href="#" data-toggle="modal" data-target="#citySelectModal" class="small text-danger font-weight-bold" style="text-decoration:none;">
+                View All <i class="fas fa-external-link-alt ml-1"></i>
+              </a>
+            </div>
+            <a class="city-item-link {% if not selected_city and not request.GET.city %}active{% endif %}" href="{% url 'movie_list' %}?city=">
+              <span><i class="fas fa-globe mr-2 text-muted"></i> All Cities</span>
+              <small class="text-muted">Nationwide</small>
+            </a>
+            <div class="dropdown-divider my-1"></div>
+            {% for c in popular_cities %}
+            <a class="city-item-link {% if selected_city == c.name or request.GET.city == c.name %}active{% endif %}" href="{% url 'movie_list' %}?city={{ c.name }}">
+              <span><i class="fas {{ c.icon }} mr-2 text-danger"></i> {{ c.name }}</span>
+              <span class="badge badge-light border text-muted font-weight-normal small">{{ c.tag }}</span>
+            </a>
+            {% empty %}
+            <a class="city-item-link" href="{% url 'movie_list' %}?city=Mumbai"><span><i class="fas fa-building mr-2 text-danger"></i> Mumbai</span></a>
+            <a class="city-item-link" href="{% url 'movie_list' %}?city=Delhi-NCR"><span><i class="fas fa-landmark mr-2 text-danger"></i> Delhi-NCR</span></a>
+            <a class="city-item-link" href="{% url 'movie_list' %}?city=Bengaluru"><span><i class="fas fa-laptop-code mr-2 text-danger"></i> Bengaluru</span></a>
+            <a class="city-item-link" href="{% url 'movie_list' %}?city=Hyderabad"><span><i class="fas fa-monument mr-2 text-danger"></i> Hyderabad</span></a>
+            <a class="city-item-link" href="{% url 'movie_list' %}?city=Chennai"><span><i class="fas fa-umbrella-beach mr-2 text-danger"></i> Chennai</span></a>
+            <a class="city-item-link" href="{% url 'movie_list' %}?city=Kolkata"><span><i class="fas fa-palette mr-2 text-danger"></i> Kolkata</span></a>
+            <a class="city-item-link" href="{% url 'movie_list' %}?city=Pune"><span><i class="fas fa-graduation-cap mr-2 text-danger"></i> Pune</span></a>
+            <a class="city-item-link" href="{% url 'movie_list' %}?city=Ahmedabad"><span><i class="fas fa-sun mr-2 text-danger"></i> Ahmedabad</span></a>
+            {% endfor %}
+            <div class="dropdown-divider my-1"></div>
+            <a href="#" data-toggle="modal" data-target="#citySelectModal" class="city-item-link text-center text-danger font-weight-bold py-2 justify-content-center">
+              <i class="fas fa-th-large mr-2"></i> Browse All Cities & Venues
+            </a>
+          </div>
+        </div>
+
+        <button
+          class="navbar-toggler border-0"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ml-auto align-items-lg-center">
+            <li class="nav-item">
+              <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">
+                <i class="fas fa-home mr-1"></i> Home
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link {% if '/movies' in request.path %}active{% endif %}" href="{% url 'movie_list' %}">
+                <i class="fas fa-film mr-1"></i> Discover Movies
+              </a>
+            </li>
+
+            {% if user.is_authenticated %}
+            {% if user.is_staff or user.is_superuser %}
+            <li class="nav-item">
+              <a class="nav-link {% if 'admin-dashboard' in request.path %}active text-white{% else %}text-warning{% endif %} font-weight-bold" href="{% url 'admin_dashboard' %}">
+                <i class="fas fa-chart-line text-warning mr-1"></i> Admin Dashboard
+              </a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <a class="nav-link {% if '/profile' in request.path %}active{% endif %}" href="{% url 'profile' %}">
+                <i class="fas fa-user-circle mr-1"></i> {{ user.username }}
+              </a>
+            </li>
+            <li class="nav-item ml-lg-2 mt-2 mt-lg-0">
+              <form method="POST" action="{% url 'logout' %}" class="d-inline">
+                {% csrf_token %}
+                <button
+                  type="submit"
+                  class="btn btn-sm btn-outline-light px-3 py-1"
+                >
+                  <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                </button>
+              </form>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}">
+                <i class="fas fa-sign-in-alt mr-1"></i> Login
+              </a>
+            </li>
+            <li class="nav-item ml-lg-2 mt-2 mt-lg-0">
+              <a class="btn btn-brand btn-sm" href="{% url 'register' %}">
+                <i class="fas fa-user-plus mr-1"></i> Register
+              </a>
+            </li>
+            {% endif %}
+            <li class="nav-item d-lg-none mt-3 pt-3 border-top" style="border-color: rgba(255,255,255,0.1) !important;">
+              <div class="small text-white-50 text-uppercase font-weight-bold mb-2">
+                <i class="fas fa-map-marker-alt text-danger mr-1"></i> Select City:
+              </div>
+              <div class="d-flex flex-wrap">
+                <a href="{% url 'movie_list' %}?city=" class="badge badge-secondary p-2 mr-1 mb-2">All Cities</a>
+                {% for c in popular_cities %}
+                <a href="{% url 'movie_list' %}?city={{ c.name }}" class="badge badge-dark border border-secondary p-2 mr-1 mb-2 {% if selected_city == c.name or request.GET.city == c.name %}badge-danger text-white border-danger{% endif %}">
+                  {{ c.name }}
+                </a>
+                {% empty %}
+                <a href="{% url 'movie_list' %}?city=Mumbai" class="badge badge-dark p-2 mr-1 mb-2">Mumbai</a>
+                <a href="{% url 'movie_list' %}?city=Delhi-NCR" class="badge badge-dark p-2 mr-1 mb-2">Delhi-NCR</a>
+                <a href="{% url 'movie_list' %}?city=Bengaluru" class="badge badge-dark p-2 mr-1 mb-2">Bengaluru</a>
+                <a href="{% url 'movie_list' %}?city=Hyderabad" class="badge badge-dark p-2 mr-1 mb-2">Hyderabad</a>
+                {% endfor %}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Flash Messages / Alerts Container -->
+    {% if messages %}
+    <div class="container mt-3">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content Block -->
+    <main class="main-content">
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-custom">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+            <h5><i class="fas fa-ticket-alt brand-highlight mr-2"></i>PickMyShow</h5>
+            <p class="text-muted">
+              Experience seamless movie ticket discovery, instant seat bookings, and personalized recommendations across your favorite theaters.
+            </p>
+            <div class="footer-social mt-3">
+              <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+              <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+              <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+              <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+          <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+            <h5>Quick Links</h5>
+            <ul class="list-unstyled">
+              <li class="mb-2"><a href="/"><i class="fas fa-angle-right mr-1"></i> Home</a></li>
+              <li class="mb-2"><a href="{% url 'movie_list' %}"><i class="fas fa-angle-right mr-1"></i> Explore Movies</a></li>
+              <li class="mb-2"><a href="{% url 'movie_list' %}?release_date=now_showing"><i class="fas fa-angle-right mr-1"></i> Now Showing</a></li>
+              <li class="mb-2"><a href="{% url 'movie_list' %}?release_date=upcoming"><i class="fas fa-angle-right mr-1"></i> Upcoming</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+            <h5>Popular Cities</h5>
+            <ul class="list-unstyled">
+              <li class="mb-2"><a href="{% url 'movie_list' %}?city=Mumbai"><i class="fas fa-map-marker-alt mr-1"></i> Mumbai</a></li>
+              <li class="mb-2"><a href="{% url 'movie_list' %}?city=Delhi-NCR"><i class="fas fa-map-marker-alt mr-1"></i> Delhi-NCR</a></li>
+              <li class="mb-2"><a href="{% url 'movie_list' %}?city=Bengaluru"><i class="fas fa-map-marker-alt mr-1"></i> Bengaluru</a></li>
+              <li class="mb-2"><a href="{% url 'movie_list' %}?city=Hyderabad"><i class="fas fa-map-marker-alt mr-1"></i> Hyderabad</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <h5>Customer Support</h5>
+            <p class="text-muted mb-2"><i class="fas fa-envelope mr-2"></i>support&pickmyshow@hi2.in</p>
+            <p class="text-muted mb-2"><i class="fas fa-phone mr-2"></i>07019972653</p>
+            <p class="text-muted"><i class="fas fa-shield-alt mr-2"></i>100% Safe & Secure Booking</p>
+          </div>
+        </div>
+        <hr class="my-4" style="border-color: rgba(255,255,255,0.08);" />
+        <div class="text-center text-muted">
+          <small>&copy; 2024-2026 PickMyShow - All Rights Reserved | ElevanceSkills Internship Project</small>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CITY SELECTION MODAL (BookMyShow Experience)
+         ═══════════════════════════════════════════════════════════ -->
+    <div class="modal fade" id="citySelectModal" tabindex="-1" role="dialog" aria-labelledby="citySelectModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+          <div class="modal-header border-0 bg-dark text-white px-4 pt-4 pb-3">
+            <div>
+              <h5 class="modal-title font-weight-bold" id="citySelectModalLabel">
+                <i class="fas fa-map-marker-alt text-danger mr-2"></i> Explore & Select Your City
+              </h5>
+              <p class="text-muted small mb-0 mt-1">Select your city to browse movies, showtimes, and theaters near you.</p>
+            </div>
+            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 0.85;">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body p-4 bg-light">
+            <!-- Search City Filter Input -->
+            <div class="mb-4">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text bg-white border-right-0"><i class="fas fa-search text-muted"></i></span>
+                </div>
+                <input type="text" id="modalCitySearchInput" class="form-control border-left-0" placeholder="Search for your city (e.g. Mumbai, Delhi, Bengaluru)..." />
+              </div>
+            </div>
+
+            <!-- Popular Cities Grid -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="text-uppercase small font-weight-bold text-muted">Popular Metro Cities</span>
+              <a href="{% url 'movie_list' %}?city=" class="small font-weight-bold text-danger">Reset to All Cities</a>
+            </div>
+
+            <div class="row" id="popularCitiesGrid">
+              {% for c in popular_cities %}
+              <div class="col-6 col-sm-4 col-md-3 mb-3 city-col-card" data-city-name="{{ c.name|lower }}">
+                <a href="{% url 'movie_list' %}?city={{ c.name }}" class="city-modal-card {% if selected_city == c.name or request.GET.city == c.name %}active{% endif %}">
+                  <i class="fas {{ c.icon }} city-icon"></i>
+                  <div class="font-weight-bold mb-1">{{ c.name }}</div>
+                  <small class="text-muted d-block">{{ c.tag }}</small>
+                </a>
+              </div>
+              {% empty %}
+              <div class="col-6 col-sm-4 col-md-3 mb-3 city-col-card" data-city-name="mumbai">
+                <a href="{% url 'movie_list' %}?city=Mumbai" class="city-modal-card">
+                  <i class="fas fa-building city-icon"></i>
+                  <div class="font-weight-bold mb-1">Mumbai</div>
+                  <small class="text-muted d-block">Western Hub</small>
+                </a>
+              </div>
+              <div class="col-6 col-sm-4 col-md-3 mb-3 city-col-card" data-city-name="delhi-ncr">
+                <a href="{% url 'movie_list' %}?city=Delhi-NCR" class="city-modal-card">
+                  <i class="fas fa-landmark city-icon"></i>
+                  <div class="font-weight-bold mb-1">Delhi-NCR</div>
+                  <small class="text-muted d-block">Capital Region</small>
+                </a>
+              </div>
+              <div class="col-6 col-sm-4 col-md-3 mb-3 city-col-card" data-city-name="bengaluru">
+                <a href="{% url 'movie_list' %}?city=Bengaluru" class="city-modal-card">
+                  <i class="fas fa-laptop-code city-icon"></i>
+                  <div class="font-weight-bold mb-1">Bengaluru</div>
+                  <small class="text-muted d-block">Silicon Valley</small>
+                </a>
+              </div>
+              <div class="col-6 col-sm-4 col-md-3 mb-3 city-col-card" data-city-name="hyderabad">
+                <a href="{% url 'movie_list' %}?city=Hyderabad" class="city-modal-card">
+                  <i class="fas fa-monument city-icon"></i>
+                  <div class="font-weight-bold mb-1">Hyderabad</div>
+                  <small class="text-muted d-block">Cyber City</small>
+                </a>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="modal-footer bg-white border-top px-4 py-3 justify-content-between">
+            <span class="small text-muted"><i class="fas fa-shield-alt text-success mr-1"></i> Verified multiplex venues across all listed cities</span>
+            <button type="button" class="btn btn-secondary btn-sm px-3" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pure Vanilla JS Dropdown & Modal Engine -->
+    <script>
+      (function () {
+        // 1. Rock-Solid City Dropdown Toggle (Pure Vanilla JS Fallback)
+        function initCityDropdownHandler() {
+          var dropdownBtn = document.getElementById('cityDropdown');
+          var dropdownMenu = document.getElementById('cityDropdownMenu');
+          if (!dropdownBtn || !dropdownMenu) return;
+
+          dropdownBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var isOpen = dropdownMenu.classList.contains('show');
+            if (isOpen) {
+              dropdownMenu.classList.remove('show');
+              dropdownBtn.setAttribute('aria-expanded', 'false');
+            } else {
+              dropdownMenu.classList.add('show');
+              dropdownBtn.setAttribute('aria-expanded', 'true');
+            }
+          });
+
+          document.addEventListener('click', function (e) {
+            if (!dropdownBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+              dropdownMenu.classList.remove('show');
+              dropdownBtn.setAttribute('aria-expanded', 'false');
+            }
+          });
+
+          document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+              dropdownMenu.classList.remove('show');
+              dropdownBtn.setAttribute('aria-expanded', 'false');
+            }
+          });
+        }
+
+        // 2. Instant Live City Search Filter inside the Modal
+        function initCitySearchFilter() {
+          var searchInput = document.getElementById('modalCitySearchInput');
+          if (!searchInput) return;
+
+          searchInput.addEventListener('input', function () {
+            var query = (this.value || '').trim().toLowerCase();
+            var cityCards = document.querySelectorAll('.city-col-card');
+            for (var i = 0; i < cityCards.length; i++) {
+              var card = cityCards[i];
+              var cityName = card.getAttribute('data-city-name') || '';
+              if (!query || cityName.indexOf(query) !== -1) {
+                card.style.display = '';
+              } else {
+                card.style.display = 'none';
+              }
+            }
+          });
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function () {
+            initCityDropdownHandler();
+            initCitySearchFilter();
+          });
+        } else {
+          initCityDropdownHandler();
+          initCitySearchFilter();
+        }
+      })();
+    </script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

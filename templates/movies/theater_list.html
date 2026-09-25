@@ -1,0 +1,207 @@
+{% extends "users/basic.html" %} 
+{% block title %}Book {{ movie.name }} - PickMyShow{% endblock %}
+
+{% block content %}
+<style>
+  .movie-header-banner {
+    background: linear-gradient(135deg, #1e1e2d 0%, #111119 100%);
+    border-radius: 16px;
+    padding: 24px;
+    color: #fff;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  }
+  .movie-header-poster {
+    width: 140px;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+  .theatre-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .theatre-card:hover {
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  }
+  .theatre-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1a1a24;
+  }
+  .amenities-list {
+    font-size: 0.8rem;
+    color: #6c757d;
+  }
+  .amenities-list span {
+    margin-right: 12px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .showtime-btn {
+    border: 1.5px solid #28a745;
+    background: #ffffff;
+    color: #28a745;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-align: center;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 4px 8px 4px 0;
+    transition: all 0.2s ease;
+    text-decoration: none !important;
+  }
+  .showtime-btn:hover {
+    background: #28a745;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+  }
+  .showtime-btn .show-price {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #6c757d;
+    margin-top: 2px;
+  }
+  .showtime-btn:hover .show-price {
+    color: #ffffff;
+  }
+  .city-pill-btn {
+    background: #e9ecef;
+    color: #495057;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none !important;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    display: inline-block;
+  }
+  .city-pill-btn.active {
+    background: var(--primary-brand);
+    color: #fff;
+  }
+</style>
+
+<div class="container py-4">
+  <!-- MOVIE HEADER BANNER -->
+  <div class="movie-header-banner">
+    <div class="row align-items-center">
+      <div class="col-auto mb-3 mb-md-0">
+        {% if movie.image %}
+        <img src="{{ movie.image.url }}" alt="{{ movie.name }}" class="movie-header-poster" />
+        {% else %}
+        <div class="movie-header-poster bg-secondary d-flex align-items-center justify-content-center">
+          <i class="fas fa-film fa-3x"></i>
+        </div>
+        {% endif %}
+      </div>
+      <div class="col">
+        <h2 class="font-weight-bold mb-2">{{ movie.name }}</h2>
+        <div class="d-flex flex-wrap align-items-center mb-2">
+          <span class="badge badge-warning text-dark font-weight-bold mr-2 p-2">
+            <i class="fas fa-star mr-1"></i>{{ movie.rating }} / 10
+          </span>
+          <span class="badge badge-secondary mr-2 p-2">{{ movie.genre }}</span>
+          <span class="badge badge-secondary mr-2 p-2">{{ movie.language }}</span>
+          <span class="text-white-50 small mr-2"><i class="far fa-clock mr-1"></i>{{ movie.duration }} mins</span>
+          {% if movie.release_date %}
+          <span class="text-white-50 small"><i class="far fa-calendar-alt mr-1"></i>{{ movie.release_date|date:"d M Y" }}</span>
+          {% endif %}
+        </div>
+        <p class="text-white-50 mb-1 small"><i class="fas fa-users mr-1"></i><strong>Cast:</strong> {{ movie.cast }}</p>
+        {% if movie.description %}
+        <p class="text-light mb-2 small">{{ movie.description }}</p>
+        {% endif %}
+        <div>
+          <a href="{% url 'movie_detail' movie.id %}" class="btn btn-outline-light btn-sm font-weight-bold">
+            <i class="fas fa-play-circle text-danger mr-1"></i> Watch Trailer, Read Reviews & Details
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CITY FILTER SELECTOR FOR SHOWTIMES -->
+  <div class="bg-white p-3 rounded shadow-sm border mb-4">
+    <div class="d-flex flex-wrap align-items-center">
+      <span class="font-weight-bold mr-3 text-dark mb-2 mb-sm-0">
+        <i class="fas fa-map-marker-alt text-danger mr-1"></i> Filter by City:
+      </span>
+      <div>
+        <a href="?" class="city-pill-btn {% if not selected_city %}active{% endif %}">All Cities</a>
+        {% for c in cities %}
+        <a href="?city={{ c }}" class="city-pill-btn {% if selected_city == c %}active{% endif %}">{{ c }}</a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- THEATERS LIST -->
+  <h4 class="font-weight-bold text-dark mb-3">
+    Available Theaters & Showtimes {% if selected_city %}in {{ selected_city }}{% endif %}
+  </h4>
+
+  {% if theaters %}
+    {% for theater in theaters %}
+    <div class="theatre-card">
+      <div class="row align-items-center">
+        <div class="col-lg-5 mb-3 mb-lg-0">
+          <div class="theatre-name mb-1">
+            <i class="fas fa-landmark text-danger mr-2"></i>{{ theater.name }}
+          </div>
+          <div class="text-muted small mb-2">
+            <i class="fas fa-map-pin text-muted mr-1"></i> {{ theater.city }}
+            {% if theater.screen_name %}&bull; <span class="badge badge-primary text-white"><i class="fas fa-desktop mr-1"></i>{{ theater.screen_name }}</span>{% endif %}
+            {% if theater.theater_chain %}&bull; <span class="badge badge-light border">{{ theater.theater_chain }}</span>{% endif %}
+          </div>
+          <div class="amenities-list">
+            <span><i class="fas fa-mobile-alt text-success mr-1"></i> M-Ticket</span>
+            <span><i class="fas fa-utensils text-warning mr-1"></i> Food & Bev</span>
+            <span><i class="fas fa-wheelchair text-info mr-1"></i> Accessible</span>
+            <span><i class="fas fa-parking text-secondary mr-1"></i> Parking</span>
+          </div>
+        </div>
+
+        <div class="col-lg-7">
+          <div class="d-flex flex-wrap align-items-center justify-content-lg-end">
+            <a href="{% url 'book_seats' theater.id %}" class="showtime-btn mr-3">
+              <span class="badge badge-light text-dark font-weight-bold mb-1" style="font-size: 0.72rem;">{{ theater.time|date:"D, d M" }}</span>
+              <span style="font-size: 1.05rem;">{{ theater.time|date:"h:i A" }}</span>
+              <span class="show-price">₹{{ theater.price|floatformat:0 }}</span>
+            </a>
+            <a href="{% url 'book_seats' theater.id %}" class="btn btn-danger btn-sm font-weight-bold px-3 py-2" style="border-radius: 8px;">
+              <i class="fas fa-couch mr-1"></i> Select Seats
+            </a>
+          </div>
+          <small class="text-muted d-block mt-2 text-lg-right">
+            <i class="fas fa-check-circle text-success mr-1"></i> Instant Confirmation &bull; 2-Min Hold Guarantee
+          </small>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="text-center py-5 bg-white rounded shadow-sm border">
+      <i class="fas fa-film fa-3x text-muted mb-3"></i>
+      <h5 class="font-weight-bold text-dark">No Showtimes Available</h5>
+      <p class="text-muted">No theaters are currently scheduled for this movie in the selected city.</p>
+      <a href="{% url 'movie_list' %}" class="btn btn-outline-danger btn-sm font-weight-bold">
+        <i class="fas fa-arrow-left mr-1"></i> Explore other movies
+      </a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+

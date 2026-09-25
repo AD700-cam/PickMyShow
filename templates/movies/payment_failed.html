@@ -1,0 +1,122 @@
+{% extends "users/basic.html" %}
+{% block title %}PickMyShow - Payment Incomplete{% endblock %}
+
+{% block content %}
+<style>
+  .payment-failed-card {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+  .failed-banner {
+    background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+    color: #fff;
+    padding: 32px 24px;
+    text-align: center;
+  }
+  .failed-icon-bubble {
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.8rem;
+    margin-bottom: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  }
+  .info-callout {
+    background: #fff8f8;
+    border-left: 4px solid #dc3545;
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+</style>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7 col-md-9">
+
+      <div class="payment-failed-card">
+        <!-- Failed Banner -->
+        <div class="failed-banner">
+          <div class="failed-icon-bubble">
+            <i class="fas fa-times"></i>
+          </div>
+          <h2 class="font-weight-bold mb-1">Payment Not Completed</h2>
+          <p class="mb-0 text-white-50">Transaction status: <strong>{{ transaction.get_status_display }}</strong></p>
+        </div>
+
+        <div class="card-body p-4 p-md-5">
+
+          <!-- Auto-Release Assurance Notice -->
+          <div class="info-callout mb-4">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-shield-alt text-danger fa-2x mr-3"></i>
+              <div>
+                <strong class="text-danger d-block mb-1">Seats Automatically Released</strong>
+                <span class="text-muted small">
+                  Your reserved seats ({{ transaction.seat_numbers }}) have been safely released to prevent accidental double-billing. You have not been charged for this booking.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transaction Info Card -->
+          <div class="card bg-light border-0 p-3 mb-4 rounded-lg">
+            <div class="d-flex justify-content-between small text-muted mb-2">
+              <span>Order Reference ID:</span> <code class="font-weight-bold text-dark">{{ transaction.order_id }}</code>
+            </div>
+            <div class="d-flex justify-content-between small text-muted mb-2">
+              <span>Movie Title:</span> <strong class="text-dark">{{ movie.name }}</strong>
+            </div>
+            <div class="d-flex justify-content-between small text-muted mb-2">
+              <span>Auditorium:</span> <strong class="text-dark">{{ theater.name }} ({{ theater.city }})</strong>
+            </div>
+            <div class="d-flex justify-content-between small text-muted mb-2">
+              <span>Amount:</span> <strong class="text-danger font-weight-bold">&#8377;{{ transaction.amount }}</strong>
+            </div>
+          {% if transaction.error_description %}
+            <div class="d-flex justify-content-between small text-muted">
+              <span>Reason:</span> <span class="text-danger font-weight-bold">{{ transaction.error_description }}</span>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Payment Support Information -->
+          <div class="alert alert-light border mb-4 rounded-lg small py-3 px-3 text-muted">
+            <i class="fas fa-info-circle text-primary mr-1"></i>
+            <strong>Need assistance?</strong> If your bank account was debited for this transaction, the amount will be automatically reversed and refunded by your bank within 3 to 5 business days.
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="text-center">
+            <div class="d-flex flex-column flex-sm-row justify-content-center">
+              <a href="{% url 'retry_payment' transaction.id %}" class="btn btn-danger btn-lg font-weight-bold shadow-sm mb-2 mb-sm-0 mr-sm-2">
+                <i class="fas fa-redo-alt mr-2"></i> Retry Payment
+              </a>
+              <a href="{% url 'book_seats' theater.id %}" class="btn btn-outline-secondary btn-lg font-weight-bold mb-2 mb-sm-0 mr-sm-2">
+                <i class="fas fa-couch mr-2"></i> Choose Other Seats
+              </a>
+              <a href="{% url 'profile' %}" class="btn btn-outline-dark btn-lg font-weight-bold">
+                <i class="fas fa-user mr-1"></i> Profile
+              </a>
+            </div>
+
+            <div class="mt-4">
+              <a href="{% url 'movie_list' %}" class="text-muted small font-weight-bold">
+                <i class="fas fa-arrow-left mr-1"></i> Browse All Movies
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
