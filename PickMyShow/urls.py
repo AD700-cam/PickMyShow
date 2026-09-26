@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
-from django.conf.urls.static import static
+from django.views.static import serve
 from movies.views import payment_webhook, admin_dashboard
 
 urlpatterns = [
@@ -11,7 +11,6 @@ urlpatterns = [
     path('', include('users.urls')),
     path('movies/', include('movies.urls')),
     path('payment/webhook/', payment_webhook, name='root_payment_webhook'),
+    # Serve user/catalog media files (posters, banners) in both development & production
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

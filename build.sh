@@ -26,16 +26,18 @@ from movies.models import Movie
 from django.contrib.auth.models import User
 from django.core.management import call_command
 
-# Auto-seed curated catalog if database is empty
-if Movie.objects.count() == 0:
-    print('Fresh database detected. Seeding 20 curated blockbusters and 100 screening events...')
+from movies.models import Movie, HeroBanner
+
+# Auto-seed curated catalog if database is empty or hero banners are missing
+if Movie.objects.count() == 0 or HeroBanner.objects.count() == 0:
+    print('Fresh database or missing banners detected. Seeding 20 curated blockbusters, 100 events, and Hero Banners...')
     try:
         call_command('seed_curated_catalog')
-        print('Successfully seeded curated catalog.')
+        print('Successfully seeded curated catalog and hero banners.')
     except Exception as e:
         print(f'Warning: Could not seed curated catalog: {e}')
 else:
-    print(f'Database already contains {Movie.objects.count()} movies.')
+    print(f'Database already contains {Movie.objects.count()} movies and {HeroBanner.objects.count()} hero banners.')
 
 # Ensure superuser exists for evaluator access
 admin_user = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')

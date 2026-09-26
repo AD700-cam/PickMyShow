@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw
 
 from movies.models import (
     Movie, Theater, Seat, Genre, Language,
-    CastMember, MoviePoster, Review, Booking
+    CastMember, MoviePoster, Review, Booking, HeroBanner
 )
 
 
@@ -635,3 +635,90 @@ class Command(BaseCommand):
             f"Successfully scheduled screening events! Total active movies: {len(saved_movies)}, "
             f"new events: {total_new_events}, new seats: {total_new_seats}"
         ))
+
+        # 5. Seed Curated Hero Carousel Banners
+        self.stdout.write(self.style.NOTICE("Seeding Hero Carousel Banners..."))
+        kalki_mov = Movie.objects.filter(name__icontains='Kalki').first()
+        oppen_mov = Movie.objects.filter(name__icontains='Oppenheimer').first()
+        incept_mov = Movie.objects.filter(name__icontains='Inception').first()
+        kantara_mov = Movie.objects.filter(name__icontains='Kantara').first()
+        manjummel_mov = Movie.objects.filter(name__icontains='Manjummel').first()
+
+        banners_config = [
+            {
+                'order': 0,
+                'title': 'Kalki 2898 AD',
+                'subtitle': 'The Mythological Dystopian Epic | In Cinemas Now',
+                'badge': 'Now Trending',
+                'badge_color': 'danger',
+                'image': 'banners/Kalki_2898_AD.png',
+                'button_text': 'Book Tickets',
+                'button_url': f'/movies/{kalki_mov.id}/theaters/' if kalki_mov else '/movies/',
+            },
+            {
+                'order': 1,
+                'title': 'Oppenheimer: The Atomic Dawn',
+                'subtitle': "Experience Christopher Nolan's Masterpiece in IMAX 70mm",
+                'badge': 'Top Rated',
+                'badge_color': 'warning',
+                'image': 'banners/oppenheimer.png',
+                'button_text': 'Book Tickets',
+                'button_url': f'/movies/{oppen_mov.id}/theaters/' if oppen_mov else '/movies/',
+            },
+            {
+                'order': 2,
+                'title': 'Inception: 15th Anniversary',
+                'subtitle': 'Your Mind is the Scene of the Crime | Special Screening',
+                'badge': 'Now Trending',
+                'badge_color': 'danger',
+                'image': 'banners/insepstion.png',
+                'button_text': 'Reserve Seats',
+                'button_url': f'/movies/{incept_mov.id}/theaters/' if incept_mov else '/movies/',
+            },
+            {
+                'order': 3,
+                'title': 'Kantara: A Legend',
+                'subtitle': 'Divine Myth and Fierce Pride | Sensational Folk Action',
+                'badge': 'Top Rated',
+                'badge_color': 'warning',
+                'image': 'banners/Kantara_A_Legend.png',
+                'button_text': 'Book Tickets',
+                'button_url': f'/movies/{kantara_mov.id}/theaters/' if kantara_mov else '/movies/',
+            },
+            {
+                'order': 4,
+                'title': 'Manjummel Boys',
+                'subtitle': 'Friendship Unshaken | The Survival Thriller of the Year',
+                'badge': 'New Release',
+                'badge_color': 'success',
+                'image': 'banners/Manjummel_Boys.png',
+                'button_text': 'Book Now',
+                'button_url': f'/movies/{manjummel_mov.id}/theaters/' if manjummel_mov else '/movies/',
+            },
+            {
+                'order': 5,
+                'title': 'Multi-City Multiplex Network',
+                'subtitle': 'Book 4K Laser, Dolby Atmos & IMAX shows across Mumbai, Delhi-NCR & Hyderabad',
+                'badge': 'Multi-City',
+                'badge_color': 'info',
+                'image': 'banners/banner_cities.jpg',
+                'button_text': 'Explore Theaters',
+                'button_url': '/movies/',
+            },
+        ]
+
+        for b in banners_config:
+            HeroBanner.objects.update_or_create(
+                order=b['order'],
+                defaults={
+                    'title': b['title'],
+                    'subtitle': b['subtitle'],
+                    'badge': b['badge'],
+                    'badge_color': b['badge_color'],
+                    'image': b['image'],
+                    'button_text': b['button_text'],
+                    'button_url': b['button_url'],
+                    'is_active': True,
+                }
+            )
+        self.stdout.write(self.style.SUCCESS(f"Successfully seeded {len(banners_config)} Hero Banners!"))
