@@ -36,8 +36,32 @@ if Movie.objects.count() == 0 or HeroBanner.objects.count() == 0:
         print('Successfully seeded curated catalog and hero banners.')
     except Exception as e:
         print(f'Warning: Could not seed curated catalog: {e}')
-else:
-    print(f'Database already contains {Movie.objects.count()} movies and {HeroBanner.objects.count()} hero banners.')
+# Synchronize all 20 movies to their verified standard poster image paths
+standard_posters = {
+    'Dark Knight': 'movies/dark_knight.jpg',
+    'Dune': 'movies/dune_2.jpg',
+    'Interstellar': 'movies/interstellar.jpg',
+    'Kantara': 'movies/kantara.jpg',
+    'Manjummel': 'movies/manjummel_boys.jpg',
+    'Oppenheimer': 'movies/oppenheimer.jpg',
+    'Inception': 'movies/inception.jpg',
+    'Kalki': 'movies/kalki_2898_ad.jpg',
+    'RRR': 'movies/rrr.jpg',
+    'Laapataa': 'movies/laapataa_ladies.jpg',
+    'Spider-Man': 'movies/Spider-Man_Brand_New_Day.jpg',
+    'Drishyam': 'movies/drishyam_2.jpg',
+    'Pushpa': 'movies/pushpa_2.jpg',
+    'Chhava': 'movies/chhava.jpg',
+    'Sita Ramam': 'movies/sita_ramam.jpg',
+    'The Odyssey': 'movies/The_Odyssey.jpg',
+    'Jawan': 'movies/jawan.jpg',
+    'Stree': 'movies/stree_2.jpg',
+    'Brahmastra': 'movies/brahmastra.jpg',
+    'Leo': 'movies/leo_bloody_sweet.jpg',
+}
+for title_query, poster_path in standard_posters.items():
+    Movie.objects.filter(name__icontains=title_query).update(image=poster_path)
+print('Successfully synchronized all 20 movie poster paths in database.')
 
 # Ensure superuser exists for evaluator access
 admin_user = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
