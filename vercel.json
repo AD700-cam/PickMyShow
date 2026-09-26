@@ -12,10 +12,6 @@
     {
       "src": "staticfiles/**",
       "use": "@vercel/static"
-    },
-    {
-      "src": "media/**",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -28,10 +24,7 @@
     },
     {
       "src": "/media/(.*)",
-      "dest": "/media/$1",
-      "headers": {
-        "cache-control": "public, max-age=86400"
-      }
+      "dest": "https://pickmyshow-backend.onrender.com/media/$1"
     },
     {
       "src": "/(.*)",
