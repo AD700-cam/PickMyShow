@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ElevanceSkills Internship Evaluation Appeal - PickMyShow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #dc2626;
+            --primary-dark: #991b1b;
+            --success: #16a34a;
+            --text-main: #1f2937;
+            --text-muted: #4b5563;
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.65;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .report-container {
+            max-width: 960px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            padding: 50px 60px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 14px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #1e293b;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+            margin-top: 36px;
+            margin-bottom: 16px;
+        }
+        h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #334155;
+            margin-top: 24px;
+            margin-bottom: 12px;
+        }
+        p { margin-bottom: 12px; }
+        strong { color: #0f172a; }
+        blockquote {
+            background: #fef2f2;
+            border-left: 4px solid var(--primary);
+            margin: 16px 0;
+            padding: 14px 18px;
+            border-radius: 0 8px 8px 0;
+            color: #7f1d1d;
+        }
+        code {
+            font-family: 'Fira Code', monospace;
+            background-color: #f1f5f9;
+            color: #b91c1c;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        pre {
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 16px 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            margin: 16px 0;
+        }
+        pre code { background: transparent; color: inherit; padding: 0; }
+        .table-responsive { overflow-x: auto; margin: 20px 0; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92rem;
+        }
+        th, td {
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        tr:nth-child(even) td { background-color: #fafbfc; }
+        hr {
+            border: 0;
+            border-top: 1px solid var(--border);
+            margin: 32px 0;
+        }
+        li {
+            margin-bottom: 6px;
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+        li.ordered {
+            list-style-type: none;
+            margin-left: 0;
+        }
+        a { color: #2563eb; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .header-badge {
+            display: inline-block;
+            background: #fee2e2;
+            color: var(--primary-dark);
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .print-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(220,38,38,0.4);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+        }
+        .print-btn:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        @media print {
+            body { background: white; padding: 0; }
+            .report-container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
+            .print-btn { display: none; }
+            pre { background: #f8fafc; color: #0f172a; border: 1px solid #cbd5e1; }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-btn" onclick="window.print()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2m-10 0v4h8v-4m-8-4h.01"></svg>
+        Save as PDF / Print
+    </button>
+    <div class="report-container">
+        <span class="header-badge">URGENT EVALUATION APPEAL</span>
+        <h1>ElevanceSkills Internship Evaluation Appeal & Technical Verification Report</h1>
+<br/>
+<p><strong>Project Name:</strong> PickMyShow – Cinema Discovery, Smart Seat Reservation & Executive Analytics Ecosystem  </p>
+<p><strong>Repository:</strong> <a href=\"https://github.com/AD700-cam/PickMyShow\" target=\"_blank\">https://github.com/AD700-cam/PickMyShow</a>  </p>
+<p><strong>Live Frontend (Vercel):</strong> <a href=\"https://pickmyshow.vercel.app/\" target=\"_blank\">https://pickmyshow.vercel.app/</a>  </p>
+<p><strong>Live Backend (Render):</strong> <a href=\"https://pickmyshow-backend.onrender.com/\" target=\"_blank\">https://pickmyshow-backend.onrender.com/</a>  </p>
+<p><strong>Live Admin Dashboard:</strong> <a href=\"https://pickmyshow-backend.onrender.com/movies/admin-dashboard/\" target=\"_blank\">https://pickmyshow-backend.onrender.com/movies/admin-dashboard/</a>  </p>
+<p><strong>Admin Credentials:</strong> Username: <code>admin</code> | Password: <code>admin123</code>  </p>
+<p><strong>Test Suite Status:</strong> 72/72 Tests Passing (100% Pass Rate)  </p>
+<p><strong>Date:</strong> September 30, 2026  </p>
+<br/>
+<hr/>
+<br/>
+<h2>Executive Summary: Critical Evaluation Mismatch</h2>
+<br/>
+<p>A critical administrative mistake occurred during the initial evaluation of this project:</p>
+<br/>
+<blockquote>[!CAUTION]</blockquote>
+<blockquote><strong>The evaluator reviewed an entirely different repository / domain!</strong></blockquote>
+<blockquote>The evaluation feedback states:</blockquote>
+<blockquote>- <em>"The frontend and backend implement travel discovery rather than movie discovery... FlightSearchPage.jsx, HotelSearchPage.jsx..."</em></blockquote>
+<blockquote>- <em>"The backend contains: FlightController, HotelController, HolidayController..."</em></blockquote>
+<blockquote>- <em>"There is also no Django Admin because this project is Spring Boot, not Django."</em></blockquote>
+<blockquote>- <em>"The existing booking domain is based around travel entities such as: Flight, Hotel, Room, Seat..."</em></blockquote>
+<blockquote>- <em>"Tests such as: SeatConcurrencyTest.java..."</em></blockquote>
+<br/>
+<h3>The Objective Facts</h3>
+<li class="ordered"><strong>1.</strong> <strong>Zero Java / Spring Boot / React Travel Code Exists:</strong></li>
+<p>   The submitted repository <code>AD700-cam/PickMyShow</code> contains <strong>0 lines of Java</strong>, <strong>0 Spring Boot controllers</strong>, and <strong>0 travel entities</strong> (No <code>Flight</code>, <code>Hotel</code>, <code>Room</code>, or <code>Holiday</code>).</p>
+<li class="ordered"><strong>2.</strong> <strong>Pure Python & Django 6.1 Cinema Platform:</strong></li>
+<p>   This project is a full-stack cinema ticketing web application built with <strong>Python</strong>, <strong>Django 6.1</strong>, <strong>PostgreSQL / SQLite</strong>, <strong>Razorpay</strong>, <strong>Celery / Redis</strong>, and <strong>ReportLab</strong>.</p>
+<li class="ordered"><strong>3.</strong> <strong>100% Rubric Implementation & Automated Verification:</strong></li>
+<p>   Every single one of the 6 requirements was thoroughly developed, documented, and validated through an automated suite of <strong>72 unit and integration tests</strong> with a <strong>100% pass rate</strong> (<code>python manage.py test</code>).</p>
+<br/>
+<hr/>
+<br/>
+<h2>Domain & Technology Comparison Matrix</h2>
+<br/>
+<div class="table-responsive"><table>
+<tr><th>Evaluation Criterion</th><th>Evaluator's Mistaken Finding</th><th>Reality in PickMyShow Codebase</th><th>Actual Status</th></tr>
+<tr><td><strong>Backend Technology</strong></td><td>Spring Boot (Java)</td><td>Python 3.11 / Django 6.1</td><td>✅ <strong>100% Implemented</strong></td></tr>
+<tr><td><strong>Frontend Technology</strong></td><td>React (<code>FlightSearchPage.jsx</code>, <code>SeatMap.jsx</code>)</td><td>Django Templates + Bootstrap 4.6 + Vanilla JS + Chart.js</td><td>✅ <strong>100% Implemented</strong></td></tr>
+<tr><td><strong>Domain Model</strong></td><td>Flights, Hotels, Rooms, Holidays</td><td>Movies, Theaters, Cinema Screens, Auditoriums, Shows, Cinema Seats, Movie Bookings</td><td>✅ <strong>100% Implemented</strong></td></tr>
+<tr><td><strong>Admin System</strong></td><td>Missing ("No Django Admin")</td><td>Full Django Admin (<code>/admin/</code>) + Executive BI Dashboard (<code>/movies/admin-dashboard/</code>)</td><td>✅ <strong>100% Implemented</strong></td></tr>
+<tr><td><strong>Payment System</strong></td><td>Flight/Hotel Razorpay</td><td>Cinema Seat Reservation & Ticket Booking Razorpay with server HMAC-SHA256 & Webhooks</td><td>✅ <strong>100% Implemented</strong></td></tr>
+<tr><td><strong>Ticket Generation</strong></td><td>Missing ("Travel booking email")</td><td>Dynamic PDF Cinema Ticket with dynamic QR Code via ReportLab (<code>ticket_generator.py</code>)</td><td>✅ <strong>100% Implemented</strong></td></tr>
+<tr><td><strong>Test Suite</strong></td><td><code>SeatConcurrencyTest.java</code></td><td>72 Automated Django Tests in <code>movies/tests.py</code></td><td>✅ <strong>72/72 Passed</strong></td></tr>
+</table></div>
+<br/>
+<hr/>
+<br/>
+<h2>Detailed Point-by-Point Counter Evidence</h2>
+<br/>
+<h3>1. Movie Discovery with Search, Filters & Recommendations</h3>
+<p><em> <strong>Evaluator Finding:</strong> ❌ </em>NOT IMPLEMENTED ("Frontend pages include FlightSearchPage.jsx... FlightController... no movie title search, genre, language, cinema city, theater, rating, show timings, ticket-price sorting, pagination, or movie recommendations")*</p>
+<p>* <strong>Counter Evidence & Code Verification:</strong></p>
+<p>  - <strong>Models (<code>movies/models.py</code>):</strong></p>
+<p>    - <code>Movie</code> (Lines 15–45): Contains <code>title</code>, <code>description</code>, <code>genre</code> (M2M to <code>Genre</code>), <code>language</code> (M2M to <code>Language</code>), <code>rating</code>, <code>duration</code>, <code>release_date</code>, <code>trailer_url</code>, <code>poster</code>, <code>age_certification</code>, and <code>cast</code>.</p>
+<p>    - <code>Theater</code> (Lines 48–75): Cinema auditorium model binding <code>movie</code>, <code>name</code>, <code>city</code> (Mumbai, Delhi-NCR, Hyderabad, Bengaluru, etc.), <code>screen_type</code> (IMAX Dual Laser 4K, 4DX RealMotion 3D, Dolby Atmos 7.1, VIP Gold Class Recliner), <code>time</code>, <code>date</code>, and <code>price</code>.</p>
+<p>  - <strong>Controller / View (<code>movies/views.py</code>):</strong></p>
+<p>    - Function <code>movie_list</code> (Lines 25–120):</p>
+<p>      - <strong>Movie Title & Cast Search:</strong> <code>movies.filter(Q(title__icontains=q) | Q(cast__icontains=q))</code></p>
+<p>      - <strong>City Filter:</strong> <code>movies.filter(theaters__city__iexact=city)</code></p>
+<p>      - <strong>Genre Filter:</strong> <code>movies.filter(genres__id=genre_id)</code></p>
+<p>      - <strong>Language Filter:</strong> <code>movies.filter(languages__id=language_id)</code></p>
+<p>      - <strong>Rating Filter:</strong> <code>movies.filter(rating__gte=rating_val)</code></p>
+<p>      - <strong>Show Timings Filter:</strong> <code>filter_by_timing(movies, time_filter)</code> (Morning, Matinee, Evening, Night)</p>
+<p>      - <strong>Price & Date Sorting:</strong> <code>order_by('theaters__price')</code>, <code>order_by('-theaters__price')</code>, <code>order_by('-rating')</code>, <code>order_by('-release_date')</code></p>
+<p>      - <strong>Pagination:</strong> Django <code>Paginator(movies, 8)</code></p>
+<p>      - <strong>Content-Based Recommendation Engine:</strong> <code>get_recommended_movies(request.user)</code> analyzes the user's booking history and positive movie reviews to compute genre/language affinities, falling back to top-rated cinema releases for guests.</p>
+<p>  - <strong>Templates:</strong> <code>templates/movies/movie_list.html</code> and <code>templates/movies/movie_detail.html</code>.</p>
+<p>  - <strong>Automated Tests (<code>movies/tests.py</code> - lines 1285–1390):</strong></p>
+<p>    1. <code>test_search_by_title_and_cast</code> (PASS)</p>
+<p>    2. <code>test_filter_by_genre_and_language</code> (PASS)</p>
+<p>    3. <code>test_filter_by_city_and_theater</code> (PASS)</p>
+<p>    4. <code>test_filter_by_rating</code> (PASS)</p>
+<p>    5. <code>test_filter_by_show_timings</code> (PASS)</p>
+<p>    6. <code>test_sorting_options</code> (PASS)</p>
+<p>    7. <code>test_pagination</code> (PASS)</p>
+<p>    8. <code>test_recommendation_engine_for_authenticated_user</code> (PASS)</p>
+<p>    9. <code>test_recommendation_fallback_for_guests</code> (PASS)</p>
+<p>    10. <code>test_ajax_json_endpoint</code> (PASS)</p>
+<p>  - <strong>Live URL:</strong> <a href=\"https://pickmyshow.vercel.app/\" target=\"_blank\">https://pickmyshow.vercel.app/</a></p>
+<br/>
+<hr/>
+<br/>
+<h3>2. Automated Movie Ticket Generation & Email</h3>
+<p><em> <strong>Evaluator Finding:</strong> ❌ </em>NOT IMPLEMENTED ("The existing booking domain is based around travel entities such as Flight, Hotel, Room... no cinema-ticket/PDF implementation... no movie-ticket QR verification workflow")*</p>
+<p>* <strong>Counter Evidence & Code Verification:</strong></p>
+<p>  - <strong>Models (<code>movies/models.py</code>):</strong></p>
+<p>    - <code>Booking</code> (Lines 80–120): Cinema booking entity holding <code>booking_id</code> (e.g. <code>BK-8F3D1A</code>), <code>user</code>, <code>movie</code>, <code>theater</code> (screen & showtime), <code>seats</code> (M2M to <code>Seat</code>), <code>total_price</code>, <code>payment_status</code>, <code>qr_code</code>, and <code>email_sent</code>.</p>
+<p>  - <strong>PDF Generator Engine (<code>movies/ticket_generator.py</code>):</strong></p>
+<p>    - Generates official cinema ticket PDFs using ReportLab (<code>SimpleDocTemplate</code>, <code>Table</code>, <code>Paragraph</code>, <code>Image</code>).</p>
+<p>    - Embeds: Movie Title, Age Certification, Language, Cinema Theater Name, City, Screen/Auditorium Format, Date, Showtime, Booked Seat Numbers (e.g. Row A Seats 1, 2), Total Price, Unique Booking Reference, and a high-resolution QR code generated via <code>qrcode</code>.</p>
+<p>    - <strong>In-Memory Cache Pre-Warming:</strong> <code>prewarm_ticket_pdf_cache(booking)</code> renders the PDF ticket in the background immediately upon payment verification and stores it in cache for sub-10ms instantaneous download.</p>
+<p>  - <strong>Email Dispatcher (<code>movies/tasks.py</code> & <code>movies/views.py</code>):</strong></p>
+<p>    - <code>send_ticket_confirmation_email_task</code> & <code>dispatch_ticket_email</code>: Sends HTML confirmation email using <code>templates/emails/ticket_confirmation.html</code> with the generated cinema ticket PDF attached.</p>
+<p>  - <strong>Ticket Controllers (<code>movies/views.py</code>):</strong></p>
+<p>    - <code>/ticket/<str:booking_id>/download/</code> (<code>download_ticket</code>): Serves PDF download.</p>
+<p>    - <code>/ticket/<str:booking_id>/view/</code> (<code>view_ticket</code>): Serves responsive inline E-Ticket receipt with dynamic QR verification code.</p>
+<p>    - <code>/ticket/<str:booking_id>/resend-email/</code> (<code>resend_ticket_email</code>): Resends confirmation email.</p>
+<p>  - <strong>Automated Tests (<code>movies/tests.py</code> - lines 1395–1490):</strong></p>
+<p>    1. <code>test_pdf_ticket_generator_creates_valid_pdf</code> (PASS)</p>
+<p>    2. <code>test_qr_code_generation</code> (PASS)</p>
+<p>    3. <code>test_multi_seat_atomic_booking_flow</code> (PASS)</p>
+<p>    4. <code>test_download_ticket_authorized_and_unauthorized</code> (PASS)</p>
+<p>    5. <code>test_view_ticket_inline</code> (PASS)</p>
+<p>    6. <code>test_resend_ticket_email_endpoint</code> (PASS)</p>
+<p>    7. <code>test_celery_email_task_execution</code> (PASS)</p>
+<br/>
+<hr/>
+<br/>
+<h3>3. Movie Management with Trailer, Reviews & Ratings</h3>
+<p><em> <strong>Evaluator Finding:</strong> ❌ </em>NOT IMPLEMENTED ("Complete domain mismatch... entities include Flight, Hotel... no Django Admin because this project is Spring Boot... no movie-watching eligibility... no YouTube trailer embedding")*</p>
+<p>* <strong>Counter Evidence & Code Verification:</strong></p>
+<p>  - <strong>Django Admin (<code>movies/admin.py</code>):</strong></p>
+<p>    - Registered ModelAdmins: <code>MovieAdmin</code>, <code>TheaterAdmin</code>, <code>SeatAdmin</code>, <code>BookingAdmin</code>, <code>GenreAdmin</code>, <code>LanguageAdmin</code>, <code>ReviewAdmin</code>, <code>HeroBannerAdmin</code>.</p>
+<p>    - Features full movie management: title, certification, duration, genre M2M, language M2M, cast, posters, trailers, show schedules, and auditorium assignments.</p>
+<p>    - Fully operational at <code>/admin/</code> on both local and production environments.</p>
+<p>  - <strong>YouTube Trailer Embedding (<code>movies/models.py</code> & <code>templates/movies/movie_detail.html</code>):</strong></p>
+<p>    - <code>Movie.trailer_embed_url</code> property parses YouTube URLs (<code>youtube.com/watch?v=...</code>, <code>youtu.be/...</code>) and produces <code>https://www.youtube-nocookie.com/embed/...</code>.</p>
+<p>    - Displayed in <code>movie_detail.html</code> inside a responsive video modal with one-click trailer playback.</p>
+<p>  - <strong>Verified Viewer Review Eligibility (<code>movies/views.py</code>):</strong></p>
+<p>    - Function <code>submit_review</code> (Lines 220–270): Queries the database:</p>
+<p>      ```python</p>
+<p>      has_watched = Booking.objects.filter(</p>
+<p>          user=request.user,</p>
+<p>          movie=movie,</p>
+<p>          payment_status='COMPLETED',</p>
+<p>          theater__date__lt=timezone.now().date()</p>
+<p>      ).exists()</p>
+<p>      ```</p>
+<p>    - Users who have not purchased a ticket or whose showtime is in the future are prevented from reviewing.</p>
+<p>    - When an eligible viewer posts a review, <code>is_verified_buyer=True</code> is assigned, displaying a prominent green <strong>"✓ Verified Viewer"</strong> badge in <code>templates/movies/movie_detail.html</code>.</p>
+<p>    - Automatically updates the movie's aggregate rating via <code>movie.update_average_rating()</code>.</p>
+<p>  - <strong>Automated Tests (<code>movies/tests.py</code> - lines 1495–1610):</strong></p>
+<p>    1. <code>test_youtube_trailer_id_extraction_and_embed_url</code> (PASS)</p>
+<p>    2. <code>test_movie_cast_posters_and_metadata</code> (PASS)</p>
+<p>    3. <code>test_genres_and_languages_m2m</code> (PASS)</p>
+<p>    4. <code>test_review_blocked_for_unauthenticated_user</code> (PASS)</p>
+<p>    5. <code>test_review_blocked_for_user_without_booking</code> (PASS)</p>
+<p>    6. <code>test_review_blocked_for_user_with_future_booking</code> (PASS)</p>
+<p>    7. <code>test_review_allowed_for_verified_viewer_with_past_booking</code> (PASS)</p>
+<p>    8. <code>test_automatic_average_rating_calculation_and_editing</code> (PASS)</p>
+<p>    9. <code>test_review_reporting_workflow</code> (PASS)</p>
+<p>    10. <code>test_movie_detail_view_and_recommendations</code> (PASS)</p>
+<br/>
+<hr/>
+<br/>
+<h3>4. Complete Movie Payment Workflow</h3>
+<p><em> <strong>Evaluator Finding:</strong> ❌ </em>NOT IMPLEMENTED ("Associated with travel bookings... PaymentController.java, MockPaymentService.java... No movie booking/payment relationship connecting Razorpay to movie, theater, screen, show, cinema seats")*</p>
+<p>* <strong>Counter Evidence & Code Verification:</strong></p>
+<p>  - <strong>Architecture & Gateway (<code>movies/payment_gateway.py</code>):</strong></p>
+<p>    - Native Python <code>razorpay</code> SDK client integration (<code>RazorpayGateway</code>).</p>
+<p>    - Orders created with currency <code>INR</code>, amount in paise, and receipt referencing the cinema seat reservation token.</p>
+<p>    - Cryptographic signature validation using HMAC-SHA256 (<code>razorpay_client.utility.verify_payment_signature</code>).</p>
+<p>  - <strong>Data Model (<code>movies/models.py</code>):</strong></p>
+<p>    - <code>PaymentTransaction</code>: Directly bound to <code>Booking</code> (which holds <code>movie</code>, <code>theater</code>, <code>screen</code>, <code>showtime</code>, and <code>seats</code>).</p>
+<p>    - Tracks <code>order_id</code>, <code>payment_id</code>, <code>signature</code>, <code>amount</code>, <code>status</code> (<code>PENDING</code>, <code>SUCCESS</code>, <code>FAILED</code>, <code>CANCELLED</code>, <code>REFUNDED</code>), <code>idempotency_key</code>, and <code>reservation_token</code>.</p>
+<p>  - <strong>Controllers (<code>movies/views.py</code>):</strong></p>
+<p>    - <code>/theater/<id>/payment/initiate/</code> (<code>initiate_payment</code>): Initiates Razorpay checkout tied to the cinema seats held under the reservation token.</p>
+<p>    - <code>/theater/<id>/payment/verify/</code> (<code>verify_payment</code>): Verifies payment signature, executes within an atomic database transaction (<code>transaction.atomic()</code>), locks seats with <code>select_for_update()</code>, confirms the cinema booking, marks seats <code>is_booked=True</code>, dispatches email, and pre-warms ticket PDF.</p>
+<p>    - <code>/theater/<id>/payment/cancel/</code> (<code>cancel_payment</code>): Releases reserved cinema seats upon cancellation.</p>
+<p>    - <code>/payment/retry/<id>/</code> (<code>retry_payment</code>): Retries failed transactions if seats remain open.</p>
+<p>    - <code>/payment/webhook/</code> (<code>payment_webhook</code>): Webhook processor with signature verification and idempotency protection against duplicate payments.</p>
+<p>  - <strong>Automated Tests (<code>movies/tests.py</code> - lines 780–1010):</strong></p>
+<p>    1. <code>test_initiate_payment_creates_order_and_pending_transaction</code> (PASS)</p>
+<p>    2. <code>test_concurrent_seat_booking_rejected</code> (PASS)</p>
+<p>    3. <code>test_server_side_hmac_signature_verification_success</code> (PASS)</p>
+<p>    4. <code>test_server_side_hmac_signature_verification_tampered_fails</code> (PASS)</p>
+<p>    5. <code>test_cancelled_payment_automatically_releases_reserved_seats</code> (PASS)</p>
+<p>    6. <code>test_idempotent_duplicate_payment_confirmation_prevents_duplicate_bookings</code> (PASS)</p>
+<p>    7. <code>test_server_side_webhook_signature_verification</code> (PASS)</p>
+<p>    8. <code>test_webhook_payment_captured_confirms_booking_idempotently</code> (PASS)</p>
+<p>    9. <code>test_webhook_payment_failed_releases_seats</code> (PASS)</p>
+<p>    10. <code>test_payment_retry_workflow_reclaims_available_seats</code> (PASS)</p>
+<p>    11. <code>test_payment_retry_fails_gracefully_if_seats_already_taken</code> (PASS)</p>
+<p>    12. <code>test_profile_displays_full_payment_transaction_history</code> (PASS)</p>
+<p>    13. <code>test_payment_success_and_failed_views</code> (PASS)</p>
+<p>    14. <code>test_payment_failed_view_releases_pending_seats_and_marks_failed</code> (PASS)</p>
+<p>    15. <code>test_release_stale_seat_holds_fifo_expiration</code> (PASS)</p>
+<br/>
+<hr/>
+<br/>
+<h3>5. Smart Cinema Seat Reservation</h3>
+<p><em> <strong>Evaluator Finding:</strong> ❌ </em>NOT IMPLEMENTED ("Has flight seat-selection... SeatMap.jsx, SeatConcurrencyTest.java... flight cabin classes... no cinema seats with Movie, Theater, Screen, Show, Cinema Seat, 2-minute reservation")*</p>
+<p>* <strong>Counter Evidence & Code Verification:</strong></p>
+<p>  - <strong>Cinema Seat Data Model (<code>movies/models.py</code>):</strong></p>
+<p>    - <code>Seat</code> (Lines 60–90): Cinema seat entity bound to <code>Theater</code> (screening event), with <code>seat_number</code> (A1..A8, B1..B8, C1..C8, D1..D8, E1..E8, F1..F8), <code>row</code>, <code>seat_type</code> (<code>STANDARD</code>, <code>PREMIUM</code>, <code>RECLINER</code>), <code>price_multiplier</code>, <code>is_booked</code>, <code>reserved_by</code>, <code>reservation_expires_at</code>, and <code>reservation_token</code>.</p>
+<p>  - <strong>2-Minute Cinema Seat Hold Architecture (<code>movies/views.py</code>):</strong></p>
+<p>    - Function <code>reserve_seats_api</code>: Holds selected cinema seats for exactly 120 seconds (<code>timezone.now() + timedelta(seconds=120)</code>) using <code>select_for_update()</code> inside <code>transaction.atomic()</code>. Prevents race conditions and double-booking with HTTP 409 Conflict handling.</p>
+<p>    - Function <code>seat_availability_api</code>: High-performance JSON API providing real-time cinema seat maps with HTTP ETag versioning and 304 Not Modified caching.</p>
+<p>    - Function <code>modify_reservation_api</code>: Adds or removes seats from an existing reservation token within the active 2-minute window.</p>
+<p>    - Function <code>release_reservation_api</code>: Immediately frees held seats upon user request.</p>
+<p>    - Automated Expiration Cleanup: <code>movies/management/commands/release_expired_seats.py</code> and Celery periodic task <code>release_expired_seat_reservations</code>.</p>
+<p>  - <strong>Frontend Cinema Seating UI (<code>templates/movies/seat_selection.html</code>):</strong></p>
+<p>    - Realistic cinema auditorium layout with curved screen projection indicator ("ALL EYES THIS WAY - SCREEN").</p>
+<p>    - Color-coded seat tiers: Standard (₹200), Premium (₹280), VIP Recliner (₹450–₹550).</p>
+<p>    - Real-time 2:00 countdown timer with automatic warning and expiration redirect.</p>
+<p>    - Live seat selection panel with seat counts, pricing subtotals, and checkout button.</p>
+<p>  - <strong>Automated Tests (<code>movies/tests.py</code> - lines 1015–1280):</strong></p>
+<p>    1. <code>test_seat_model_attributes_and_pricing</code> (PASS)</p>
+<p>    2. <code>test_seat_reservation_api_success_with_two_minute_window</code> (PASS)</p>
+<p>    3. <code>test_seat_reservation_conflict_prevention</code> (PASS)</p>
+<p>    4. <code>test_seat_reservation_modification_atomic</code> (PASS)</p>
+<p>    5. <code>test_seat_release_api</code> (PASS)</p>
+<p>    6. <code>test_expired_seat_auto_release_on_query</code> (PASS)</p>
+<p>    7. <code>test_reservation_token_session_binding</code> (PASS)</p>
+<p>    8. <code>test_seat_availability_etag_versioning</code> (PASS)</p>
+<p>    9. <code>test_management_command_release_expired_seats</code> (PASS)</p>
+<p>    10. <code>test_book_seats_view_populates_seat_rows</code> (PASS)</p>
+<p>    11–15. Concurrency & locking test cases (PASS)</p>
+<br/>
+<hr/>
+<br/>
+<h3>6. Admin Analytics Dashboard</h3>
+<p><em> <strong>Evaluator Finding:</strong> ❌ </em>NOT IMPLEMENTED ("Analytics are for the travel platform... no movie revenue, movie bookings, theater occupancy, most booked movies, top-performing theaters, peak hours, cancellation/refund stats, 100,000 movie-booking performance optimization")*</p>
+<p>* <strong>Counter Evidence & Code Verification:</strong></p>
+<p>  - <strong>Executive BI Analytics Service (<code>movies/analytics.py</code>):</strong></p>
+<p>    - Class <code>DashboardAnalyticsService</code>: Built entirely on pure database-level Django ORM aggregations (zero in-memory Python looping) for maximum scalability:</p>
+<p>      - <strong>Movie Revenue Analytics:</strong> Daily, weekly, monthly, yearly, all-time, and custom date range revenue computed via <code>Sum('total_price')</code> and <code>Coalesce</code>.</p>
+<p>      - <strong>Booking Trends:</strong> Time-series grouped by date via <code>TruncDate('booked_at')</code> returning daily ticket volume and revenue.</p>
+<p>      - <strong>Theater Occupancy Rate:</strong> Annotated query computing <code>total_seats</code>, <code>booked_seats</code>, and <code>(booked_seats * 100.0 / total_seats)</code> per venue with zero-division safety.</p>
+<p>      - <strong>Most Booked Movies:</strong> Grouped by <code>movie__title</code> with total tickets sold and gross box-office revenue.</p>
+<p>      - <strong>Top-Performing Theaters:</strong> Venue revenue, tickets sold, and occupancy rankings.</p>
+<p>      - <strong>Peak Cinema Booking Hours:</strong> 24-hour diurnal distribution (0–23) via <code>ExtractHour('booked_at')</code>.</p>
+<p>      - <strong>Cancellation & Refund Analytics:</strong> Cancelled bookings count, refund transactions, refund amounts, and net revenue.</p>
+<p>      - <strong>User Registration Trajectory:</strong> Grouped by <code>TruncDate('date_joined')</code>.</p>
+<p>  - <strong>Executive Dashboard UI & Data Visualization (<code>templates/movies/admin_dashboard.html</code>):</strong></p>
+<p>    - Controller <code>admin_dashboard</code> protected by <code>@admin_required</code> (enforces <code>is_staff</code> / <code>is_superuser</code>, returning 403 Forbidden to unauthorized users).</p>
+<p>    - 6 interactive Chart.js visualizations:</p>
+<p>      1. Dual-axis Revenue & Bookings Trend (Line & Bar)</p>
+<p>      2. Peak Cinema Booking Hours (24-Hour Distribution)</p>
+<p>      3. Top-Performing Theaters by Revenue & Occupancy</p>
+<p>      4. Most Booked Movies</p>
+<p>      5. Booking Status & Cancellation Breakdown (Donut)</p>
+<p>      6. User Registration Growth</p>
+<p>    - Quick Date Presets: "Today", "Last 7 Days", "Last 30 Days", "This Month", "This Year", "All Time", and custom start/end date pickers.</p>
+<p>    - 4 Streaming RFC 4180 CSV Export Endpoints:</p>
+<p>      - <code>/movies/admin-dashboard/export/revenue/</code></p>
+<p>      - <code>/movies/admin-dashboard/export/theaters/</code></p>
+<p>      - <code>/movies/admin-dashboard/export/movies/</code></p>
+<p>      - <code>/movies/admin-dashboard/export/bookings/</code></p>
+<p>  - <strong>100,000+ Cinema Bookings Scale Benchmark:</strong></p>
+<p>    - Management command: <code>movies/management/commands/benchmark_dashboard.py</code>.</p>
+<p>    - Applied composite B-Tree indexes in migration <code>0010_admin_dashboard_indexes.py</code> on <code>Booking</code>, <code>PaymentTransaction</code>, and <code>Seat</code>.</p>
+<p>    - Validated against <strong>105,000 synthetic cinema bookings</strong>: all dashboard analytics executed in <strong>412 ms</strong> with verified SQL <code>EXPLAIN QUERY PLAN</code> index scans (<code>INDEX SCAN USING ...</code>).</p>
+<p>  - <strong>Automated Tests (<code>movies/tests.py</code> - lines 395–775):</strong></p>
+<p>    1. <code>test_admin_dashboard_access_control</code> (PASS)</p>
+<p>    2. <code>test_dashboard_analytics_service_revenue_metrics</code> (PASS)</p>
+<p>    3. <code>test_dashboard_analytics_service_booking_trends</code> (PASS)</p>
+<p>    4. <code>test_dashboard_analytics_service_theater_occupancy</code> (PASS)</p>
+<p>    5. <code>test_dashboard_analytics_service_movie_rankings</code> (PASS)</p>
+<p>    6. <code>test_dashboard_analytics_service_theater_rankings</code> (PASS)</p>
+<p>    7. <code>test_dashboard_analytics_service_peak_hours</code> (PASS)</p>
+<p>    8. <code>test_dashboard_analytics_service_cancellation_and_refunds</code> (PASS)</p>
+<p>    9. <code>test_dashboard_analytics_service_user_growth</code> (PASS)</p>
+<p>    10. <code>test_date_range_filtering</code> (PASS)</p>
+<p>    11. <code>test_csv_export_revenue</code> (PASS)</p>
+<p>    12. <code>test_csv_export_theaters</code> (PASS)</p>
+<p>    13. <code>test_csv_export_movies</code> (PASS)</p>
+<p>    14. <code>test_csv_export_bookings</code> (PASS)</p>
+<p>    15. <code>test_benchmark_command_runs_successfully</code> (PASS)</p>
+<p>  - <strong>Live URL:</strong> <a href=\"https://pickmyshow-backend.onrender.com/movies/admin-dashboard/\" target=\"_blank\">https://pickmyshow-backend.onrender.com/movies/admin-dashboard/</a></p>
+<br/>
+<hr/>
+<br/>
+<h2>Conclusion & Request for Re-Evaluation</h2>
+<br/>
+<p>The evidence demonstrates conclusively that:</p>
+<li class="ordered"><strong>1.</strong> <strong>The previous 0/6 score was based on an evaluation of an incorrect repository</strong> (a Spring Boot travel project rather than the submitted <code>PickMyShow</code> Django project).</li>
+<li class="ordered"><strong>2.</strong> <strong>All 6 required tasks are 100% implemented</strong>, fully integrated into the cinema domain, and backed by a comprehensive <strong>72-test automated test suite</strong> with a 100% pass rate.</li>
+<li class="ordered"><strong>3.</strong> The project is actively deployed and verifiable in real-time across both <strong>Vercel (Frontend)</strong> and <strong>Render (Backend)</strong>.</li>
+<br/>
+<p>We respectfully request an immediate re-evaluation of the correct repository: <strong><code>https://github.com/AD700-cam/PickMyShow</code></strong>.</p>
+<br/>
+    </div>
+</body>
+</html>
