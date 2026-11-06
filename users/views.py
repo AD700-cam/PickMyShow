@@ -6,34 +6,44 @@ from django.contrib.auth.decorators import login_required
 from movies.models import Movie, Booking, Theater, HeroBanner, PaymentTransaction
 from movies.views import get_personalized_recommendations
 
+import os
+import traceback
+from django.http import HttpResponse
+
 def home(request):
-    selected_genre = request.GET.get('genre', '').strip()
-    if selected_genre.lower() in ['', 'all']:
-        selected_genre = None
+    try:
+        selected_genre = request.GET.get('genre', '').strip()
+        if selected_genre.lower() in ['', 'all']:
+            selected_genre = None
 
-    all_movies = list(Movie.objects.all().order_by('-rating', '-views_count'))
-    if selected_genre:
-        recommended_movies  = get_personalized_recommendations(request, limit=4, genre=selected_genre)
-        now_showing_movies  = [m for m in all_movies if m.genre and m.genre.lower() == selected_genre.lower()][:20]
-        if len(now_showing_movies) < 4:
-            other_movies = [m for m in all_movies if not (m.genre and m.genre.lower() == selected_genre.lower())][:20 - len(now_showing_movies)]
-            now_showing_movies = now_showing_movies + other_movies
-    else:
-        recommended_movies  = get_personalized_recommendations(request, limit=4)
-        now_showing_movies  = all_movies[:20]
+        all_movies = list(Movie.objects.all().order_by('-rating', '-views_count'))
+        if selected_genre:
+            recommended_movies  = get_personalized_recommendations(request, limit=4, genre=selected_genre)
+            now_showing_movies  = [m for m in all_movies if m.genre and m.genre.lower() == selected_genre.lower()][:20]
+            if len(now_showing_movies) < 4:
+                other_movies = [m for m in all_movies if not (m.genre and m.genre.lower() == selected_genre.lower())][:20 - len(now_showing_movies)]
+                now_showing_movies = now_showing_movies + other_movies
+        else:
+            recommended_movies  = get_personalized_recommendations(request, limit=4)
+            now_showing_movies  = all_movies[:20]
 
-    hero_banners = HeroBanner.objects.filter(is_active=True).order_by('order')[:5]
-    genres = [g[0] for g in Movie.GENRE_CHOICES]
-    cities = [c[0] for c in Theater.CITY_CHOICES]
-    return render(request, 'home.html', {
-        'movies':             now_showing_movies,
-        'all_movies':         all_movies,
-        'recommended_movies': recommended_movies,
-        'hero_banners':       hero_banners,
-        'genres':             genres,
-        'cities':             cities,
-        'selected_genre':     selected_genre,
-    })
+        hero_banners = HeroBanner.objects.filter(is_active=True).order_by('order')[:5]
+        genres = [g[0] for g in Movie.GENRE_CHOICES]
+        cities = [c[0] for c in Theater.CITY_CHOICES]
+        return render(request, 'home.html', {
+            'movies':             now_showing_movies,
+            'all_movies':         all_movies,
+            'recommended_movies': recommended_movies,
+            'hero_banners':       hero_banners,
+            'genres':             genres,
+            'cities':             cities,
+            'selected_genre':     selected_genre,
+        })
+    except Exception as e:
+        trace = traceback.format_exc()
+        if request.GET.get('trace') or request.GET.get('debug'):
+            return HttpResponse(f"<h1>PickMyShow Home Exception</h1><pre>{trace}</pre>", status=500)
+        raise
 def register(request):
     if request.method == 'POST':
         form=UserRegisterForm(request.POST)
