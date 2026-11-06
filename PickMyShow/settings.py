@@ -119,7 +119,7 @@ try:
 except Exception:
     is_readonly_fs = False
 
-if (is_serverless or is_readonly_fs) and 'DATABASE_URL' not in os.environ:
+if is_serverless or is_readonly_fs:
     import shutil
     temp_db_path = Path('/tmp/db.sqlite3')
     try:
@@ -158,9 +158,18 @@ def configure_sqlite_connection(sender, connection, **kwargs):
         except Exception:
             pass
 
-# Override with remote database if DATABASE_URL is provided in environment
-if 'DATABASE_URL' in os.environ and os.environ.get('DATABASE_URL'):
-    DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL')) 
+# Remote Database Configuration (Render / Supabase / Neon):
+# If DATABASE_URL is provided, use it on standard servers (like Render backend).
+# On Vercel serverless edge, default to the standalone bundled curated SQLite database
+# unless VERCEL_USE_REMOTE_DB=True is explicitly set, preventing crashes from expired external databases.
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    should_use_remote = True
+    if is_serverless and not os.environ.get('VERCEL_USE_REMOTE_DB'):
+        should_use_remote = False
+
+    if should_use_remote:
+        DATABASES['default'] = dj_database_url.parse(database_url, conn_max_age=600, ssl_require=True) 
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
