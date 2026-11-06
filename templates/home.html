@@ -520,7 +520,11 @@
       {% for banner in hero_banners %}
       <div class="carousel-item {% if forloop.first %}active{% endif %}" data-interval="3000">
         <a href="{{ banner.button_url }}">
+          {% if banner.image %}
           <img src="{{ banner.image.url }}" alt="{{ banner.title }}" />
+          {% else %}
+          <div style="height:380px;background:linear-gradient(120deg,#1a1a2e 0%,#0f3460 100%);"></div>
+          {% endif %}
         </a>
       </div>
       {% empty %}

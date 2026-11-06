@@ -107,10 +107,34 @@ WSGI_APPLICATION = 'PickMyShow.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+sqlite_db_path = BASE_DIR / 'db.sqlite3'
+
+# Serverless (Vercel / AWS Lambda) & Read-Only Filesystem Resilience:
+# In Vercel serverless execution environments, the source root (/var/task) is read-only.
+# When running with SQLite, copy the bundled database to the writable /tmp directory
+# to permit SQLite function registration, WAL/rollback journals, and session writes.
+is_serverless = bool(os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'))
+try:
+    is_readonly_fs = not os.access(BASE_DIR, os.W_OK) or (sqlite_db_path.exists() and not os.access(sqlite_db_path, os.W_OK))
+except Exception:
+    is_readonly_fs = False
+
+if (is_serverless or is_readonly_fs) and 'DATABASE_URL' not in os.environ:
+    import shutil
+    temp_db_path = Path('/tmp/db.sqlite3')
+    try:
+        if sqlite_db_path.exists() and (not temp_db_path.exists() or temp_db_path.stat().st_size == 0):
+            shutil.copy2(sqlite_db_path, temp_db_path)
+            sqlite_db_path = temp_db_path
+        elif temp_db_path.exists() and temp_db_path.stat().st_size > 0:
+            sqlite_db_path = temp_db_path
+    except Exception:
+        pass
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': sqlite_db_path,
         'OPTIONS': {
             'timeout': 60,
         },
@@ -118,23 +142,25 @@ DATABASES = {
 }
 
 # SQLite Concurrency & Performance Optimization:
-# Enable WAL (Write-Ahead Logging) mode, busy timeout, and memory cache for SQLite
+# Enable WAL (Write-Ahead Logging) mode, busy timeout, and memory cache for SQLite safely
 from django.db.backends.signals import connection_created
 from django.dispatch import receiver
 
 @receiver(connection_created)
 def configure_sqlite_connection(sender, connection, **kwargs):
     if connection.vendor == 'sqlite':
-        with connection.cursor() as cursor:
-            cursor.execute('PRAGMA journal_mode = WAL;')
-            cursor.execute('PRAGMA synchronous = NORMAL;')
-            cursor.execute('PRAGMA busy_timeout = 60000;')
-            cursor.execute('PRAGMA cache_size = -64000;')
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute('PRAGMA journal_mode = WAL;')
+                cursor.execute('PRAGMA synchronous = NORMAL;')
+                cursor.execute('PRAGMA busy_timeout = 60000;')
+                cursor.execute('PRAGMA cache_size = -64000;')
+        except Exception:
+            pass
 
 # Override with remote database if DATABASE_URL is provided in environment
 if 'DATABASE_URL' in os.environ and os.environ.get('DATABASE_URL'):
-    DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
-# 
+    DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL')) 
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
