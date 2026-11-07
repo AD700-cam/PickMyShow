@@ -2,8 +2,8 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/((?!static/|media/).*)",
-      "destination": "/api/index?path=/$1"
+      "source": "/:path*",
+      "destination": "/api/index?path=/:path*"
     }
   ],
   "headers": [
