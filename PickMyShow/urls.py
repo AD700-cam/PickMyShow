@@ -32,13 +32,13 @@ def health_check(request):
     return JsonResponse(db_info)
 
 def catch_all_debug(request, path=''):
+    debug_keys = {k: v for k, v in request.META.items() if any(sub in k for sub in ['PATH', 'MATCH', 'URI', 'URL', 'ROUTE', 'VERCEL', 'HTTP_X'])}
     return JsonResponse({
         'received_path': request.path,
         'path_info': request.path_info,
         'get_full_path': request.get_full_path(),
         'method': request.method,
-        'environ_script_name': request.environ.get('SCRIPT_NAME'),
-        'environ_path_info': request.environ.get('PATH_INFO'),
+        'debug_keys': debug_keys,
     })
 
 urlpatterns = [
