@@ -1,11 +1,10 @@
 {
-  "version": 2,
-  "rewrites": [
-    {
-      "source": "/((?!static/|media/).*)",
-      "destination": "/api/index"
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "PickMyShow/wsgi.py": {
+      "maxDuration": 60
     }
-  ],
+  },
   "headers": [
     {
       "source": "/static/:path*",

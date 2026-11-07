@@ -31,16 +31,6 @@ def health_check(request):
     db_info['vercel_env'] = bool(os.environ.get('VERCEL'))
     return JsonResponse(db_info)
 
-def catch_all_debug(request, path=''):
-    debug_keys = {k: v for k, v in request.META.items() if any(sub in k for sub in ['PATH', 'MATCH', 'URI', 'URL', 'ROUTE', 'VERCEL', 'HTTP_X'])}
-    return JsonResponse({
-        'received_path': request.path,
-        'path_info': request.path_info,
-        'get_full_path': request.get_full_path(),
-        'method': request.method,
-        'debug_keys': debug_keys,
-    })
-
 urlpatterns = [
     path('health/', health_check, name='health_check'),
     path('admin/dashboard/', admin_dashboard, name='root_admin_dashboard'),
@@ -51,5 +41,4 @@ urlpatterns = [
     path('payment/webhook/', payment_webhook, name='root_payment_webhook'),
     # Serve user/catalog media files with fast local delivery and resilient Render fallback
     re_path(r'^media/(?P<path>.*)$', media_serve_with_fallback),
-    re_path(r'^(?P<path>.*)$', catch_all_debug),
 ]
