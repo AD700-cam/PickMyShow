@@ -1,10 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "functions": {
-    "PickMyShow/wsgi.py": {
-      "maxDuration": 60
+  "rewrites": [
+    {
+      "source": "/((?!static/|media/).*)",
+      "destination": "/api/index?path=/$1"
     }
-  },
+  ],
   "headers": [
     {
       "source": "/static/:path*",
