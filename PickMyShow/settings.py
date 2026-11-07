@@ -135,6 +135,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': sqlite_db_path,
+        'CONN_MAX_AGE': 600,
         'OPTIONS': {
             'timeout': 60,
         },

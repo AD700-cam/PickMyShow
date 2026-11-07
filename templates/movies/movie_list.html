@@ -325,7 +325,7 @@
             <i class="fas fa-sparkles mr-1"></i> {{ rec_movie.recommendation_badge|default:'Top Choice' }}
           </div>
           {% if rec_movie.image %}
-          <img src="{{ rec_movie.image.url }}" alt="{{ rec_movie.name }}" class="rec-card-img" />
+          <img src="{{ rec_movie.image.url }}" alt="{{ rec_movie.name }}" class="rec-card-img" loading="lazy" decoding="async" />
           {% else %}
           <div class="rec-card-img bg-secondary d-flex align-items-center justify-content-center text-white">
             <i class="fas fa-film fa-3x"></i>

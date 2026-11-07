@@ -3,10 +3,16 @@ import traceback
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.views.static import serve
 from django.db import connection
 from movies.views import payment_webhook, admin_dashboard
+
+def media_serve_with_fallback(request, path):
+    full_path = os.path.join(settings.MEDIA_ROOT, path)
+    if os.path.exists(full_path):
+        return serve(request, path, document_root=settings.MEDIA_ROOT)
+    return HttpResponseRedirect(f"https://pickmyshow-backend.onrender.com/media/{path}")
 
 def health_check(request):
     db_info = {}
@@ -33,6 +39,6 @@ urlpatterns = [
     path('', include('users.urls')),
     path('movies/', include('movies.urls')),
     path('payment/webhook/', payment_webhook, name='root_payment_webhook'),
-    # Serve user/catalog media files (posters, banners) in both development & production
-    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    # Serve user/catalog media files with fast local delivery and resilient Render fallback
+    re_path(r'^media/(?P<path>.*)$', media_serve_with_fallback),
 ]
