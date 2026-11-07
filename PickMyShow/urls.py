@@ -27,8 +27,12 @@ def health_check(request):
     
     db_info['database_engine'] = connection.settings_dict.get('ENGINE')
     db_info['database_name'] = str(connection.settings_dict.get('NAME'))
-    db_info['database_url_present'] = bool(os.environ.get('DATABASE_URL'))
-    db_info['vercel_env'] = bool(os.environ.get('VERCEL'))
+    db_info['media_root'] = str(settings.MEDIA_ROOT)
+    db_info['media_root_exists'] = os.path.exists(settings.MEDIA_ROOT)
+    test_file = os.path.join(settings.MEDIA_ROOT, 'movies', 'inception.jpg')
+    db_info['inception_poster_exists'] = os.path.exists(test_file)
+    if os.path.exists(settings.MEDIA_ROOT):
+        db_info['media_dirs'] = os.listdir(settings.MEDIA_ROOT)
     return JsonResponse(db_info)
 
 urlpatterns = [
