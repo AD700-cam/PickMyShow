@@ -20,14 +20,15 @@ def media_serve_with_fallback(request, path):
             return response
     return HttpResponseRedirect(f"https://pickmyshow-backend.onrender.com/media/{path}")
 
+from django.shortcuts import render
+
 def custom_404(request, exception=None):
-    return JsonResponse({
-        'error': '404 Not Found',
-        'attempted_path': request.path,
-        'path_info': request.path_info,
-        'environ_path_info': request.environ.get('PATH_INFO'),
-        'environ_query_string': request.environ.get('QUERY_STRING'),
-    }, status=404)
+    if 'application/json' in request.headers.get('Accept', ''):
+        return JsonResponse({
+            'error': '404 Not Found',
+            'attempted_path': request.path,
+        }, status=404)
+    return render(request, '404.html', status=404)
 
 handler404 = 'PickMyShow.urls.custom_404'
 
@@ -46,11 +47,6 @@ def health_check(request):
     db_info['database_name'] = str(connection.settings_dict.get('NAME'))
     db_info['media_root'] = str(settings.MEDIA_ROOT)
     db_info['media_root_exists'] = os.path.exists(settings.MEDIA_ROOT)
-    test_file = os.path.join(settings.MEDIA_ROOT, 'movies', 'inception.jpg')
-    db_info['inception_poster_exists'] = os.path.exists(test_file)
-    db_info['request_path'] = request.path
-    db_info['request_path_info'] = request.path_info
-    db_info['query_string'] = request.META.get('QUERY_STRING')
     return JsonResponse(db_info)
 
 urlpatterns = [
