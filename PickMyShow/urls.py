@@ -3,15 +3,21 @@ import traceback
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.views.static import serve
 from django.db import connection
 from movies.views import payment_webhook, admin_dashboard
 
+import mimetypes
+
 def media_serve_with_fallback(request, path):
     full_path = os.path.join(settings.MEDIA_ROOT, path)
-    if os.path.exists(full_path):
-        return serve(request, path, document_root=settings.MEDIA_ROOT)
+    if os.path.exists(full_path) and os.path.isfile(full_path):
+        content_type, _ = mimetypes.guess_type(full_path)
+        with open(full_path, 'rb') as f:
+            response = HttpResponse(f.read(), content_type=content_type or 'application/octet-stream')
+            response['Cache-Control'] = 'public, max-age=31536000, immutable'
+            return response
     return HttpResponseRedirect(f"https://pickmyshow-backend.onrender.com/media/{path}")
 
 def health_check(request):
